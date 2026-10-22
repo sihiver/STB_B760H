@@ -68,8 +68,18 @@ jobs:
             bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf \
             imagemagick lib32ncurses-dev lib32readline-dev lib32z1-dev liblz4-tool \
             libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync \
-            schedtool squashfs-tools xsltproc zip zlib1g-dev || true
+            schedtool squashfs-tools xsltproc zip zlib1g-dev libncurses5 libtinfo5 libncurses5-dev || true
           
+          # Ensure libncurses.so.5 & libtinfo.so.5 exist for prebuilt clang host binaries
+          for lib in libncurses libtinfo; do
+            if [ ! -f /usr/lib/x86_64-linux-gnu/${lib}.so.5 ] && [ -f /usr/lib/x86_64-linux-gnu/${lib}.so.6 ]; then
+              sudo ln -sf /usr/lib/x86_64-linux-gnu/${lib}.so.6 /usr/lib/x86_64-linux-gnu/${lib}.so.5
+            fi
+            if [ ! -f /lib/x86_64-linux-gnu/${lib}.so.5 ] && [ -f /lib/x86_64-linux-gnu/${lib}.so.6 ]; then
+              sudo ln -sf /lib/x86_64-linux-gnu/${lib}.so.6 /lib/x86_64-linux-gnu/${lib}.so.5
+            fi
+          done
+
           # Fix Jack Server TLS communication error (Error 51)
           if [ -n "$JAVA_HOME" ] && [ -f "$JAVA_HOME/jre/lib/security/java.security" ]; then
             sudo sed -i -e 's/TLSv1, TLSv1.1,//g' "$JAVA_HOME/jre/lib/security/java.security" || true
