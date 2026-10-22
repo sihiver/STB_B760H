@@ -128,6 +128,11 @@ jobs:
             git clone --depth=1 -b cm-14.1 https://github.com/andrew264/android_kernel_lenovo_mt8127.git kernel/zte/B760H/
           fi
           
+          # Copy custom b760h_defconfig from device tree into kernel tree
+          if [ -f device/zte/B760H/configs/b760h_defconfig ]; then
+            cp device/zte/B760H/configs/b760h_defconfig kernel/zte/B760H/arch/arm/configs/b760h_defconfig
+          fi
+          
           # Vendor tree
           mkdir -p vendor/zte/B760H
           if [ -d "$WORK_DIR/android_vendor_zte_B760H" ]; then
