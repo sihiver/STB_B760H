@@ -17,10 +17,10 @@ $(call inherit-product, $(DEVICE_DIR)/device.mk)
 # Get non-open-source device specific aspects
 $(call inherit-product-if-exists, $(VENDOR_DIR)/B760H-vendor.mk)
 
-# TV/STB Artwork configs
-PRODUCT_AAPT_CONFIG := normal hdpi xhdpi tvdpi
+# Artwork configs
+PRODUCT_AAPT_CONFIG := normal hdpi
 PRODUCT_AAPT_PREF_CONFIG := hdpi
-PRODUCT_AAPT_PREBUILT_DPI := hdpi tvdpi mdpi
+PRODUCT_AAPT_PREBUILT_DPI := hdpi mdpi
 
 # Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := B760H

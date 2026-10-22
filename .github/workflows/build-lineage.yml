@@ -32,16 +32,19 @@ jobs:
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo docker image prune --all --force 2>/dev/null || true
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /var/lib/docker
+          sudo apt-get clean
           echo "Disk space after cleanup:"
           df -h
 
-      - name: Set up Swap Space (10 GB)
+      - name: Set up Swap Space (5 GB)
         run: |
           sudo swapoff -a || true
           sudo rm -f /swapfile
-          sudo fallocate -l 10G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=10240
+          sudo fallocate -l 5G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=5120
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
@@ -97,8 +100,9 @@ jobs:
           
           # Setup Jack Server memory for Nougat
           echo "export JACK_SERVER_VM_ARGUMENTS=\"-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4096m\"" >> $GITHUB_ENV
-          echo "export USE_CCACHE=1" >> $GITHUB_ENV
-          echo "export CCACHE_DIR=~/.ccache" >> $GITHUB_ENV
+          
+          # Disable ccache to save ~15GB disk space on ephemeral runner
+          echo "export USE_CCACHE=0" >> $GITHUB_ENV
 
       - name: Inisialisasi LineageOS 14.1 Tree
         run: |
