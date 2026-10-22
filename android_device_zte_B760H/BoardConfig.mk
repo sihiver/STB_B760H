@@ -187,6 +187,7 @@ EXTENDED_FONT_FOOTPRINT := true
 
 # Bootanimation
 TARGET_BOOTANIMATION_MULTITHREAD_DECODE := true
+TARGET_BOOTANIMATION := device/zte/B760H/bootanimation.zip
 
 # Dalvik Tweak
 PRODUCT_TAGS += dalvik.gc.type-precise
