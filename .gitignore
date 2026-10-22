@@ -1,0 +1,11 @@
+# Firmware dump
+kitkat_B760H/
+
+# Original tablet repositories (already separate repos)
+android_device_lenovo_TB3710F/
+android_kernel_lenovo_mt8127/
+android_vendor_lenovo_TB3710F/
+
+# Build artifacts
+out/
+*.log
