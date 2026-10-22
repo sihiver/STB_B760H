@@ -29,6 +29,7 @@ jobs:
         run: |
           echo "Initial disk space:"
           df -h
+          sudo apt-get purge -y azure-cli google-cloud-cli hhvm google-chrome-stable firefox microsoft-edge-stable || true
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
@@ -36,15 +37,16 @@ jobs:
           sudo rm -rf /usr/local/share/boost
           sudo rm -rf /usr/local/share/powershell
           sudo rm -rf /var/lib/docker
+          sudo apt-get autoremove -y || true
           sudo apt-get clean
           echo "Disk space after cleanup:"
           df -h
 
-      - name: Set up Swap Space (5 GB)
+      - name: Set up Swap Space (8 GB)
         run: |
           sudo swapoff -a || true
           sudo rm -f /swapfile
-          sudo fallocate -l 5G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=5120
+          sudo fallocate -l 8G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=8192
           sudo chmod 600 /swapfile
           sudo mkswap /swapfile
           sudo swapon /swapfile
@@ -102,7 +104,7 @@ jobs:
           git config --global color.ui false
           
           # Setup Jack Server memory for Nougat
-          echo "export JACK_SERVER_VM_ARGUMENTS=\"-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4096m\"" >> $GITHUB_ENV
+          echo "export JACK_SERVER_VM_ARGUMENTS=\"-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx3584m\"" >> $GITHUB_ENV
           
           # Disable ccache to save ~15GB disk space on ephemeral runner
           echo "export USE_CCACHE=0" >> $GITHUB_ENV
@@ -113,6 +115,13 @@ jobs:
           cd ~/android/lineage
           repo init -u https://github.com/LineageOS/android.git -b cm-14.1 --depth=${{ inputs.sync_depth }}
           repo sync -c -j4 --no-tags --no-clone-bundle --force-sync
+          
+          # Delete .repo directory to immediately free 15-20 GB disk space
+          echo "Disk space before removing .repo:"
+          df -h
+          rm -rf .repo
+          echo "Disk space after removing .repo:"
+          df -h
 
       - name: Copy Device, Kernel, & Vendor Trees
         run: |
@@ -163,11 +172,23 @@ jobs:
           mka org.cyanogenmod.platform-res
           mka framework-res
           
+          # Build target with -j2 to prevent OOM killer on GitHub Actions runner (7GB RAM)
+          BUILD_CMD="mka bacon -j2"
           if [ "${{ inputs.target }}" = "bootimage" ]; then
-            mka bootimage -j$(nproc)
-          else
-            mka bacon -j$(nproc)
+            BUILD_CMD="mka bootimage -j2"
           fi
+          
+          echo "Executing: $BUILD_CMD"
+          $BUILD_CMD || {
+            echo "==================== BUILD FAILED ===================="
+            echo "--- DISK USAGE ---"
+            df -h
+            echo "--- KERNEL OOM EVENTS ---"
+            dmesg -T | grep -iE 'oom|killed|out of memory' | tail -n 25 || true
+            echo "--- FAILED SUBCOMMANDS FROM LOGS ---"
+            find out/ -name "*.log" -exec grep -Hn "FAILED:" {} + 2>/dev/null | tail -n 30 || true
+            exit 1
+          }
 
       - name: Upload Output Artifacts
         uses: actions/upload-artifact@v4

@@ -18,7 +18,7 @@ $(call inherit-product, $(DEVICE_DIR)/device.mk)
 $(call inherit-product-if-exists, $(VENDOR_DIR)/B760H-vendor.mk)
 
 # Artwork configs
-PRODUCT_AAPT_CONFIG := normal hdpi
+PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := hdpi
 PRODUCT_AAPT_PREBUILT_DPI := hdpi mdpi
 
