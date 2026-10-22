@@ -152,6 +152,9 @@ jobs:
           source build/envsetup.sh
           breakfast lineage_B760H-userdebug || lunch lineage_B760H-userdebug
           
+          # Pre-build platform resources to prevent race condition on Manifest.java
+          mka org.cyanogenmod.platform-res
+          
           if [ "${{ inputs.target }}" = "bootimage" ]; then
             mka bootimage -j$(nproc)
           else
