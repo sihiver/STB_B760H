@@ -18,7 +18,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     timeout-minutes: 360
 
     steps:
@@ -45,8 +45,9 @@ jobs:
           sudo swapon /swapfile
           free -h
 
-      - name: Set up Build Dependencies (Ubuntu 20.04)
+      - name: Set up Build Dependencies (Ubuntu 22.04)
         run: |
+          sudo add-apt-repository universe -y
           sudo apt-get update
           sudo apt-get install -y \
             bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf \

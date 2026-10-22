@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+    <!-- ZTE ZXV10 B760H (MT8685 / MT8127) Trees -->
+    <project path="device/zte/B760H" name="android_device_zte_B760H" remote="github" revision="cm-14.1" />
+    <project path="kernel/zte/B760H" name="android_kernel_lenovo_mt8127" remote="github" revision="cm-14.1" />
+    <project path="vendor/zte/B760H" name="android_vendor_zte_B760H" remote="github" revision="cm-14.1" />
+</manifest>
