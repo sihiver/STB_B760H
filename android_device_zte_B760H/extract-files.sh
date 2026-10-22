@@ -18,8 +18,8 @@
 
 set -e
 
-DEVICE=TB3710F
-VENDOR=lenovo
+DEVICE=B760H
+VENDOR=zte
 
 # Load extract_utils and do some sanity checks
 MY_DIR="${BASH_SOURCE%/*}"
