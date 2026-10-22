@@ -73,7 +73,7 @@ jobs:
             bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf \
             imagemagick lib32ncurses-dev lib32z1-dev liblz4-tool \
             libssl-dev libxml2 libxml2-utils lzop pngcrush rsync \
-            schedtool squashfs-tools xsltproc zip zlib1g-dev libncurses6 libtinfo6 libncurses-dev || true
+            schedtool squashfs-tools xsltproc zip unzip zlib1g-dev libncurses6 libtinfo6 libncurses-dev || true
           
           # Relax ImageMagick security policy
           sudo sed -i 's/<policy domain="coder" rights="none"/<!-- <policy domain="coder" rights="none"/' /etc/ImageMagick-6/policy.xml || true
@@ -122,6 +122,25 @@ jobs:
           rm -rf .repo
           echo "Disk space after removing .repo:"
           df -h
+
+          # Fix Git LFS prebuilt webview.apk (LineageOS Gerrit LFS server is dead/offline)
+          # LineageOS syncs a 133-byte Git LFS pointer text file, causing ZipException in SignApk at 91%
+          echo "Validating external/chromium-webview/prebuilt/arm/webview.apk..."
+          mkdir -p external/chromium-webview/prebuilt/arm
+          if [ ! -f external/chromium-webview/prebuilt/arm/webview.apk ] || [ $(wc -c < external/chromium-webview/prebuilt/arm/webview.apk) -lt 10000 ]; then
+            echo "Fetching genuine AOSP Nougat 7.1.2 arm webview.apk from android.googlesource.com..."
+            curl -sL "https://android.googlesource.com/platform/external/chromium-webview/+/refs/heads/nougat-mr2-release/prebuilt/arm/webview.apk?format=TEXT" | base64 -d > external/chromium-webview/prebuilt/arm/webview.apk
+          fi
+          ls -lh external/chromium-webview/prebuilt/arm/webview.apk
+          unzip -t external/chromium-webview/prebuilt/arm/webview.apk | tail -n 2
+
+          if [ -d external/chromium-webview/prebuilt/arm64 ]; then
+            if [ ! -f external/chromium-webview/prebuilt/arm64/webview.apk ] || [ $(wc -c < external/chromium-webview/prebuilt/arm64/webview.apk) -lt 10000 ]; then
+              echo "Fetching genuine AOSP Nougat 7.1.2 arm64 webview.apk..."
+              curl -sL "https://android.googlesource.com/platform/external/chromium-webview/+/refs/heads/nougat-mr2-release/prebuilt/arm64/webview.apk?format=TEXT" | base64 -d > external/chromium-webview/prebuilt/arm64/webview.apk || true
+            fi
+            ls -lh external/chromium-webview/prebuilt/arm64/webview.apk || true
+          fi
 
       - name: Copy Device, Kernel, & Vendor Trees
         run: |
@@ -199,16 +218,28 @@ jobs:
             exit $BUILD_STATUS
           fi
 
+      - name: Collect Output Artifacts
+        if: always()
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/output"
+          cp ~/android/lineage/out/target/product/B760H/*.zip "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/lineage/out/target/product/B760H/boot.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/lineage/out/target/product/B760H/system.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/lineage/out/target/product/B760H/recovery.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/lineage/build.log "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          echo "Collected artifacts in $GITHUB_WORKSPACE/output:"
+          ls -lh "$GITHUB_WORKSPACE/output"
+
       - name: Upload Output Artifacts
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: lineage-14.1-B760H-output
           path: |
-            ~/android/lineage/out/target/product/B760H/*.zip
-            ~/android/lineage/out/target/product/B760H/boot.img
-            ~/android/lineage/out/target/product/B760H/system.img
-            ~/android/lineage/out/target/product/B760H/recovery.img
+            output/*.zip
+            output/boot.img
+            output/system.img
+            output/recovery.img
           if-no-files-found: warn
 
       - name: Upload Build Log
@@ -216,5 +247,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: lineage-build-log
-          path: ~/android/lineage/build.log
+          path: output/build.log
           if-no-files-found: ignore
