@@ -172,25 +172,35 @@ jobs:
           mka org.cyanogenmod.platform-res
           mka framework-res
           
-          # Build target with -j2 to prevent OOM killer on GitHub Actions runner (7GB RAM)
-          BUILD_CMD="mka bacon -j2"
+          # Strictly enforce 2 parallel jobs on Ninja and GNU Make to prevent OOM
+          export NINJA_ARGS="-j 2"
+          
+          BUILD_TARGET="bacon"
           if [ "${{ inputs.target }}" = "bootimage" ]; then
-            BUILD_CMD="mka bootimage -j2"
+            BUILD_TARGET="bootimage"
           fi
           
-          echo "Executing: $BUILD_CMD"
-          $BUILD_CMD || {
-            echo "==================== BUILD FAILED ===================="
+          echo "Executing build: make -j2 $BUILD_TARGET"
+          make -j2 $BUILD_TARGET 2>&1 | tee build.log
+          BUILD_STATUS=${PIPESTATUS[0]}
+          
+          if [ $BUILD_STATUS -ne 0 ]; then
+            echo "==================== BUILD FAILED (Exit Code: $BUILD_STATUS) ===================="
             echo "--- DISK USAGE ---"
             df -h
             echo "--- KERNEL OOM EVENTS ---"
-            dmesg -T | grep -iE 'oom|killed|out of memory' | tail -n 25 || true
-            echo "--- FAILED SUBCOMMANDS FROM LOGS ---"
-            find out/ -name "*.log" -exec grep -Hn "FAILED:" {} + 2>/dev/null | tail -n 30 || true
-            exit 1
-          }
+            sudo dmesg -T | grep -iE 'oom|killed|out of memory' | tail -n 25 || true
+            echo "--- EXTRACTING FAILED SUBCOMMAND FROM BUILD.LOG ---"
+            grep -B 5 -A 35 "FAILED:" build.log | tail -n 50 || true
+            echo "--- EXTRACTING COMPILER ERRORS ---"
+            grep -E -i "error:|fatal error:|internal compiler error" build.log | tail -n 30 || true
+            echo "--- LAST 50 LINES OF LOG ---"
+            tail -n 50 build.log
+            exit $BUILD_STATUS
+          fi
 
       - name: Upload Output Artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: lineage-14.1-B760H-output
@@ -200,3 +210,11 @@ jobs:
             ~/android/lineage/out/target/product/B760H/system.img
             ~/android/lineage/out/target/product/B760H/recovery.img
           if-no-files-found: warn
+
+      - name: Upload Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lineage-build-log
+          path: ~/android/lineage/build.log
+          if-no-files-found: ignore
