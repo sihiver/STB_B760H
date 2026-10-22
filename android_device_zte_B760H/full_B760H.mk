@@ -36,11 +36,9 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	power.default
 
-# Charger
+# Charger (STB is plugged directly to DC 12V, no battery)
 PRODUCT_PACKAGES += \
     charger \
-    charger_res_images \
-    cm_charger_res_images \
     libnl_2
 
 # network

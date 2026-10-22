@@ -18,9 +18,9 @@ $(call inherit-product, $(DEVICE_DIR)/device.mk)
 $(call inherit-product-if-exists, $(VENDOR_DIR)/B760H-vendor.mk)
 
 # TV/STB Artwork configs
-PRODUCT_AAPT_CONFIG := tvdpi hdpi xhdpi
-PRODUCT_AAPT_PREF_CONFIG := tvdpi
-PRODUCT_AAPT_PREBUILT_DPI := tvdpi hdpi xhdpi
+PRODUCT_AAPT_CONFIG := normal hdpi xhdpi tvdpi
+PRODUCT_AAPT_PREF_CONFIG := hdpi
+PRODUCT_AAPT_PREBUILT_DPI := hdpi tvdpi mdpi
 
 # Device identifier. This must come after all inclusions
 PRODUCT_DEVICE := B760H
