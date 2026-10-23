@@ -119,8 +119,12 @@ PRODUCT_PACKAGES += \
     restoretime
 
 # Extras
+ifeq ($(PRODUCT_NAME),lineage_b760h)
 PRODUCT_PACKAGES += \
-    Trebuchet \
+    Trebuchet
+endif
+
+PRODUCT_PACKAGES += \
     LeanKeyboard \
     DocumentsUI \
     WebViewGoogle \

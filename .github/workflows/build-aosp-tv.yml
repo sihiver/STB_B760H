@@ -1,0 +1,212 @@
+name: Build AOSP TV 7.1.2 for ZTE B760H
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Build Target (otapackage / systemimage / bootimage)'
+        required: true
+        default: 'otapackage'
+        type: choice
+        options:
+          - otapackage
+          - systemimage
+          - bootimage
+      sync_depth:
+        description: 'Repo sync depth (1 to save disk space)'
+        required: true
+        default: '1'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 360
+
+    steps:
+      - name: Checkout Workflow Repository
+        uses: actions/checkout@v4
+
+      - name: Free Disk Space on Runner
+        run: |
+          echo "Initial disk space:"
+          df -h
+          sudo apt-get purge -y azure-cli google-cloud-cli hhvm google-chrome-stable firefox microsoft-edge-stable || true
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/local/share/powershell
+          sudo rm -rf /var/lib/docker
+          sudo apt-get autoremove -y || true
+          sudo apt-get clean
+          echo "Disk space after cleanup:"
+          df -h
+
+      - name: Set up Swap Space (8 GB)
+        run: |
+          sudo swapoff -a || true
+          sudo rm -f /swapfile
+          sudo fallocate -l 8G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=8192
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h
+
+      - name: Set up Java 8 (Zulu)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+
+      - name: Install and Configure Python 2.7
+        run: |
+          sudo add-apt-repository universe -y
+          sudo apt-get update
+          sudo apt-get install -y python2.7 python2.7-dev
+          sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 10
+          sudo update-alternatives --set python /usr/bin/python2.7
+          python --version
+
+      - name: Set up Build Dependencies (Ubuntu 22.04)
+        run: |
+          sudo apt-get install -y \
+            bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf \
+            imagemagick lib32ncurses-dev lib32z1-dev liblz4-tool \
+            libssl-dev libxml2 libxml2-utils lzop pngcrush rsync \
+            schedtool squashfs-tools xsltproc zip unzip zlib1g-dev libncurses6 libtinfo6 libncurses-dev || true
+          
+          # Relax ImageMagick security policy
+          sudo sed -i 's/<policy domain="coder" rights="none"/<!-- <policy domain="coder" rights="none"/' /etc/ImageMagick-6/policy.xml || true
+          
+          # Ensure libncurses.so.5 & libtinfo.so.5 exist for prebuilt clang host binaries
+          for lib in libncurses libtinfo; do
+            if [ ! -f /usr/lib/x86_64-linux-gnu/${lib}.so.5 ] && [ -f /usr/lib/x86_64-linux-gnu/${lib}.so.6 ]; then
+              sudo ln -sf /usr/lib/x86_64-linux-gnu/${lib}.so.6 /usr/lib/x86_64-linux-gnu/${lib}.so.5
+            fi
+            if [ ! -f /lib/x86_64-linux-gnu/${lib}.so.5 ] && [ -f /lib/x86_64-linux-gnu/${lib}.so.6 ]; then
+              sudo ln -sf /lib/x86_64-linux-gnu/${lib}.so.6 /lib/x86_64-linux-gnu/${lib}.so.5
+            fi
+          done
+
+          # Fix Jack Server TLS communication error (Error 51)
+          if [ -n "$JAVA_HOME" ] && [ -f "$JAVA_HOME/jre/lib/security/java.security" ]; then
+            sudo sed -i -e 's/TLSv1, TLSv1.1,//g' "$JAVA_HOME/jre/lib/security/java.security" || true
+          fi
+          
+          # Install repo tool
+          sudo curl -o /usr/local/bin/repo https://storage.googleapis.com/git-repo-downloads/repo
+          sudo chmod a+x /usr/local/bin/repo
+
+      - name: Configure Git & Environment
+        run: |
+          git config --global user.name "builder"
+          git config --global user.email "builder@localhost"
+          git config --global color.ui false
+          
+          # Setup Jack Server memory for Nougat
+          echo "export JACK_SERVER_VM_ARGUMENTS=\"-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx3584m\"" >> $GITHUB_ENV
+          
+          # Disable ccache to save ~15GB disk space on ephemeral runner
+          echo "export USE_CCACHE=0" >> $GITHUB_ENV
+
+      - name: Inisialisasi AOSP 7.1.2 Tree
+        run: |
+          mkdir -p ~/android/aosp
+          cd ~/android/aosp
+          repo init -u https://android.googlesource.com/platform/manifest -b android-7.1.2_r36 --depth=${{ inputs.sync_depth }}
+          repo sync -c -j4 --no-tags --no-clone-bundle --force-sync
+          
+          # Delete .repo directory to immediately free 15-20 GB disk space
+          echo "Disk space before removing .repo:"
+          df -h
+          rm -rf .repo
+          echo "Disk space after removing .repo:"
+          df -h
+
+      - name: Copy Device & Vendor Trees
+        run: |
+          WORK_DIR="$GITHUB_WORKSPACE"
+          cd ~/android/aosp
+          
+          # Device tree (b760h)
+          mkdir -p device/zte/b760h
+          if [ -d "$WORK_DIR/android_device_zte_B760H" ]; then
+            cp -r "$WORK_DIR/android_device_zte_B760H"/* device/zte/b760h/
+          fi
+          
+          # Vendor tree (b760h)
+          mkdir -p vendor/zte/b760h
+          if [ -d "$WORK_DIR/android_vendor_zte_B760H" ]; then
+            cp -r "$WORK_DIR/android_vendor_zte_B760H"/* vendor/zte/b760h/
+          fi
+          
+          echo "Verified device and vendor trees:"
+          ls -la device/zte/b760h/
+          ls -la vendor/zte/b760h/
+
+      - name: Apply MT8127 Patches
+        run: |
+          cd ~/android/aosp
+          bash device/zte/b760h/patches/patch.sh || true
+
+      - name: Build AOSP TV (${{ inputs.target }})
+        run: |
+          cd ~/android/aosp
+          source build/envsetup.sh
+          lunch aosp_b760h-userdebug
+          
+          # Strictly enforce 2 parallel jobs on Ninja and GNU Make to prevent OOM
+          export NINJA_ARGS="-j 2"
+          
+          BUILD_TARGET="${{ inputs.target }}"
+          echo "Executing build: make -j2 $BUILD_TARGET"
+          make -j2 $BUILD_TARGET 2>&1 | tee build.log
+          BUILD_STATUS=${PIPESTATUS[0]}
+          
+          if [ $BUILD_STATUS -ne 0 ]; then
+            echo "==================== BUILD FAILED (Exit Code: $BUILD_STATUS) ===================="
+            echo "--- DISK USAGE ---"
+            df -h
+            echo "--- KERNEL OOM EVENTS ---"
+            sudo dmesg -T | grep -iE 'oom|killed|out of memory' | tail -n 25 || true
+            echo "--- EXTRACTING FAILED SUBCOMMAND FROM BUILD.LOG ---"
+            grep -B 5 -A 35 "FAILED:" build.log | tail -n 50 || true
+            echo "--- EXTRACTING COMPILER ERRORS ---"
+            grep -E -i "error:|fatal error:|internal compiler error" build.log | tail -n 30 || true
+            echo "--- LAST 50 LINES OF LOG ---"
+            tail -n 50 build.log
+            exit $BUILD_STATUS
+          fi
+
+      - name: Collect Output Artifacts
+        if: always()
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/output"
+          cp ~/android/aosp/out/target/product/*/*.zip "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/out/target/product/*/boot.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/out/target/product/*/system.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/out/target/product/*/recovery.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/build.log "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          echo "Collected artifacts in $GITHUB_WORKSPACE/output:"
+          ls -lh "$GITHUB_WORKSPACE/output"
+
+      - name: Upload Output Artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aosp-tv-7.1.2-B760H-output
+          path: |
+            output/*.zip
+            output/boot.img
+            output/system.img
+            output/recovery.img
+          if-no-files-found: warn
+
+      - name: Upload Build Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: aosp-build-log
+          path: output/build.log
+          if-no-files-found: ignore
