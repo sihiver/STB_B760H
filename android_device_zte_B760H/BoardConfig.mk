@@ -130,8 +130,10 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(DEVICE_PATH)/configs/bluetooth
 BOARD_SEPOLICY_DIRS	+= $(DEVICE_PATH)/configs/sepolicy
 POLICYVERS 		:= 26
 
-# TWRP
+# TWRP (only if bootable/recovery-twrp is present in source tree)
+ifneq (,$(strip $(wildcard bootable/recovery-twrp/twrp.cpp)))
 RECOVERY_VARIANT := twrp
+endif
 TW_THEME := landscape_hdpi
 BOARD_SUPPRESS_SECURE_ERASE := true # "Some MMCs have VERY slow secure erase - use standard erase instead"
 TW_CUSTOM_CPU_TEMP_PATH := "/sys/devices/virtual/thermal/thermal_zone1/temp"
