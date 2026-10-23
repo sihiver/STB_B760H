@@ -1,98 +1,136 @@
-DEVICE_DIR := device/zte/B760H
+DEVICE_PATH := device/zte/b760h
+VENDOR_PATH := vendor/zte/b760h
 
-# Device overlay
-DEVICE_PACKAGE_OVERLAYS += $(DEVICE_DIR)/overlay
+# Inherit the proprietary configuration.
+$(call inherit-product, $(VENDOR_PATH)/b760h-vendor.mk)
 
-# Additional includes
-TARGET_SPECIFIC_HEADER_PATH := $(DEVICE_DIR)/include
+# Dalvik/HWUI
+$(call inherit-product, frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-heap.mk)
+$(call inherit-product-if-exists, frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk)
 
-# Install init.d scripts
-PRODUCT_COPY_FILES += \
-    $(DEVICE_DIR)/configs/99exfat-support:system/etc/init.d/99exfat-support
+# Gapps
+$(call inherit-product-if-exists, vendor/gapps/arm_tvstock/arm_tvstock-vendor.mk)
 
-# Ramdisk
-PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*,$(DEVICE_DIR)/ramdisk,root)
+# Characteristics
+PRODUCT_CHARACTERISTICS := tv
+PRODUCT_SHIPPING_API_LEVEL := 19
 
-# Permissions
-PRODUCT_COPY_FILES += \
-    frameworks/native/data/etc/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml \
-    frameworks/native/data/etc/android.hardware.camera.xml:system/etc/permissions/android.hardware.camera.xml \
-    frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
-    frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
-    frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
-    frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml \
-    frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml \
-    frameworks/native/data/etc/android.hardware.sensor.barometer.xml:system/etc/permissions/android.hardware.sensor.barometer.xml \
-    frameworks/native/data/etc/android.hardware.sensor.compass.xml:system/etc/permissions/android.hardware.compass.xml \
-    frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
-    frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml \
-    frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml \
-    frameworks/native/data/etc/android.hardware.sensor.stepcounter.xml:system/etc/permissions/android.hardware.sensor.stepcounter.xml \
-    frameworks/native/data/etc/android.hardware.sensor.stepdetector.xml:system/etc/permissions/android.hardware.sensor.stepdetector.xml \
-    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
-    frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
-    frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
-    frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
-    frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
-    frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
-    frameworks/native/data/etc/android.hardware.ethernet.xml:system/etc/permissions/android.hardware.ethernet.xml \
-    frameworks/native/data/etc/android.hardware.location.xml:system/etc/permissions/android.hardware.location.xml \
-    frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
-    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
-    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.distinct.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.distinct.xml \
-    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.xml \
-    frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
-    frameworks/native/data/etc/android.hardware.touchscreen.xml:system/etc/permissions/android.hardware.touchscreen.xml \
-    frameworks/native/data/etc/android.software.sip.xml:system/etc/permissions/android.software.sip.xml
+# Boot animation
+TARGET_BOOTANIMATION_MULTITHREAD_DECODE := true
+TARGET_SCREEN_WIDTH := 1920
+TARGET_SCREEN_HEIGHT := 1080
+
+# Overlays
+DEVICE_PACKAGE_OVERLAYS += \
+    $(DEVICE_PATH)/configs/overlay/tvmini \
+    $(DEVICE_PATH)/configs/overlay/device
+
+# Permissions/features
+PERM_PATH := frameworks/native/data/etc
+PERM_DEST := system/etc/permissions
 
 PRODUCT_COPY_FILES += \
+    $(PERM_PATH)/android.hardware.bluetooth.xml:$(PERM_DEST)/android.hardware.bluetooth.xml \
+    $(PERM_PATH)/android.hardware.bluetooth_le.xml:$(PERM_DEST)/android.hardware.bluetooth_le.xml \
+    $(PERM_PATH)/android.hardware.usb.host.xml:$(PERM_DEST)/android.hardware.usb.host.xml \
+    $(PERM_PATH)/android.hardware.wifi.xml:$(PERM_DEST)/android.hardware.wifi.xml \
+    $(PERM_PATH)/android.hardware.wifi.direct.xml:$(PERM_DEST)/android.hardware.wifi.direct.xml \
+    $(PERM_PATH)/android.hardware.ethernet.xml:$(PERM_DEST)/android.hardware.ethernet.xml
+
+# Init
+PRODUCT_COPY_FILES += \
+    $(call find-copy-subdir-files,*,${DEVICE_PATH}/configs/init,root)
+
+# Recovery
+PRODUCT_COPY_FILES += \
+    $(call find-copy-subdir-files,*,${DEVICE_PATH}/configs/recovery,recovery/root)
+
+# WiFi
+PRODUCT_PACKAGES += \
+    libwpa_client \
+    hostapd \
+    wpa_supplicant \
+    wpa_supplicant.conf \
+    wificond
+
+# Bluetooth
+PRODUCT_PACKAGES += \
+     libbt-vendor
+
+# Audio
+PRODUCT_PACKAGES += \
+    audio.primary.mt8127 \
+    audio.a2dp.default \
+    audio_policy.default \
+    audio_policy.stub \
+    audio.r_submix.default \
+    audio.usb.default \
+    audio.primary.default \
+    libaudio-resampler
+
+APOL_PATH := frameworks/av/services/audiopolicy/config
+APOL_DEST := system/etc
+
+PRODUCT_COPY_FILES += \
+    $(APOL_PATH)/a2dp_audio_policy_configuration.xml:$(APOL_DEST)/a2dp_audio_policy_configuration.xml \
+    $(APOL_PATH)/usb_audio_policy_configuration.xml:$(APOL_DEST)/usb_audio_policy_configuration.xml \
+    $(APOL_PATH)/r_submix_audio_policy_configuration.xml:$(APOL_DEST)/r_submix_audio_policy_configuration.xml \
+    $(APOL_PATH)/audio_policy_volumes.xml:$(APOL_DEST)/audio_policy_volumes.xml \
+    $(APOL_PATH)/default_volume_tables.xml:$(APOL_DEST)/default_volume_tables.xml
+
+# OMX
+PRODUCT_COPY_FILES += \
+    $(call find-copy-subdir-files,*,$(DEVICE_PATH)/configs/media,system/etc) \
     frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
     frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
-    $(DEVICE_DIR)/configs/media/media_codecs.xml:system/etc/media_codecs.xml \
-    $(DEVICE_DIR)/configs/media/media_codecs_performance.xml:system/etc/media_codecs_performance.xml \
-    $(DEVICE_DIR)/configs/media/media_codecs_mediatek_video.xml:system/etc/media_codecs_mediatek_video.xml \
-    $(DEVICE_DIR)/configs/media/media_profiles.xml:system/etc/media_profiles.xml
+    frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:system/etc/media_codecs_google_video_le.xml
 
-# Wifi config files
+# Root
+PRODUCT_PACKAGES += \
+    su
+
+# Remote
+PRODUCT_PACKAGES += \
+    ir_daemon \
+    ir_daemon_recovery
+
 PRODUCT_COPY_FILES += \
-    $(DEVICE_DIR)/configs/wifi/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf \
-    $(DEVICE_DIR)/configs/wifi/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf \
-    $(DEVICE_DIR)/configs/wifi/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf
+    $(DEVICE_PATH)/libs/remote/ir_custom.template:$(TARGET_COPY_OUT_VENDOR)/etc/ir_custom.conf
 
-PRODUCT_COPY_FILES += \
-    $(DEVICE_DIR)/configs/hostapd/hostapd_default.conf:system/etc/hostapd/hostapd_default.conf \
-    $(DEVICE_DIR)/configs/hostapd/hostapd.accept:system/etc/hostapd/hostapd.accept \
-    $(DEVICE_DIR)/configs/hostapd/hostapd.deny:system/etc/hostapd/hostapd.deny
+# HDMI
+PRODUCT_PACKAGES += \
+    hdmi_helper
 
-# TWRP
-PRODUCT_COPY_FILES += \
-    $(DEVICE_DIR)/ramdisk/twrp.fstab:recovery/root/etc/twrp.fstab \
-    $(DEVICE_DIR)/ramdisk/fstab.mt8127:recovery/root/fstab.mt8127 \
-    $(DEVICE_DIR)/ramdisk/init.mt8127.rc:recovery/root/init.mt8127.rc \
-    $(DEVICE_DIR)/ramdisk/init.mt8127.usb.rc:recovery/root/init.mt8127.usb.rc \
-    $(DEVICE_DIR)/keylayout/mtk-kpd.kl:system/usr/keylayout/mtk-kpd.kl
+# Shims/stubs
+PRODUCT_PACKAGES += \
+    libcorkscrew \
+    libshim_ui \
+    libshim_gui \
+    libshim_utils \
+    libshim_audio\
+    libshim_omx \
+    libshim_log
 
-PRODUCT_BUILD_PROP_OVERRIDES += \
-    PRODUCT_DEVICE="B760H"
+# Dependencies
+PRODUCT_PACKAGES += \
+    libm4u
 
-# no RIL
-PRODUCT_PROPERTY_OVERRIDES += \
-    keyguard.no_require_sim=1 \
-    ro.radio.use-ppp=no \
-    ro.config.nocheckin=yes \
-    ro.radio.noril=1 \
-    ro.carrier=wifi-only \
-    persist.radio.noril=1
+# Settings
+PRODUCT_PACKAGES += \
+    TvSettingsMTK
 
-# red border fix - Thx to thp@1997
-PRODUCT_PROPERTY_OVERRIDES += \
-    persist.sys.strictmode.visual=0 \
-    persist.sys.strictmode.disable=1
+# Time
+PRODUCT_PACKAGES += \
+    savetime \
+    restoretime
 
-PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
-    camera.disable_zsl_mode=1
+# Extras
+PRODUCT_PACKAGES += \
+    DocumentsUI \
+    WebViewGoogle \
+    SetupWraith \
+    B760HSetupCustomizer \
+    Overscan
 
-# Storage
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.sys.sdcardfs=true
+# Remove packages
+PRODUCT_PACKAGES += RemovePackages

@@ -1,0 +1,47 @@
+From 33a51ec7c2895ab1fed60105026686cd0708686c Mon Sep 17 00:00:00 2001
+From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
+Date: Sun, 4 Oct 2026 19:15:28 +0700
+Subject: [PATCH] Disable UID rules
+
+Our kernel is too old for this.
+
+Change-Id: I06996efed0d2b3aca278d07b8ab12b316186503e
+---
+ server/Android.mk          | 4 ++++
+ server/RouteController.cpp | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/server/Android.mk b/server/Android.mk
+index 0c848e5..c0f5d65 100644
+--- a/server/Android.mk
++++ b/server/Android.mk
+@@ -121,6 +121,10 @@ ifeq ($(BOARD_HAS_QCOM_WLAN), true)
+ endif
+ endif
+ 
++ifeq ($(BOARD_USES_MTK_HARDWARE), true)
++  LOCAL_CFLAGS += -DNO_KERNEL_UID_RULES
++endif
++
+ ifdef WPA_SUPPLICANT_VERSION
+   LOCAL_CFLAGS += -DLIBWPA_CLIENT_EXISTS
+   LOCAL_SHARED_LIBRARIES += libwpa_client
+diff --git a/server/RouteController.cpp b/server/RouteController.cpp
+index 72ae69b..d4dc13e 100644
+--- a/server/RouteController.cpp
++++ b/server/RouteController.cpp
+@@ -297,7 +297,11 @@ WARN_UNUSED_RESULT int modifyIpRule(uint16_t action, uint32_t priority, uint8_t
+         return -EUSERS;
+     }
+ 
++#ifdef NO_KERNEL_UID_RULES
++    bool isUidRule = false;
++#else
+     bool isUidRule = (uidStart != INVALID_UID);
++#endif
+ 
+     // Assemble a rule request and put it in an array of iovec structures.
+     fib_rule_hdr rule = {
+-- 
+2.43.0
+

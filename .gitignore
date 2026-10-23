@@ -9,3 +9,6 @@ android_vendor_lenovo_TB3710F/
 # Build artifacts
 out/
 *.log
+lineage-14.1-B760H-output/
+lineage-14.1-b760h/
+output/

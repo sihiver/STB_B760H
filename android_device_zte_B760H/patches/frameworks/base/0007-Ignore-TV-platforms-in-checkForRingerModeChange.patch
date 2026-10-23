@@ -1,0 +1,38 @@
+From 9b5134376cb876614eab0a1c7a9a9a56f3307535 Mon Sep 17 00:00:00 2001
+From: Hank Freund <hanochf@google.com>
+Date: Mon, 5 Oct 2026 19:02:04 +0700
+Subject: [PATCH] Ignore TV platforms in checkForRingerModeChange
+
+The checkForRingerModeChange function determines how to modify the
+ringer mode based on the requested action and then calls setRingerMode
+to carry out the change. For TV devices, setRingerMode exits
+immediately, making the path through checkForRingerModeChange
+unnecessary.
+
+Removed all references to TV inside checkForRingerModeChange and
+return immediately in that situation.
+
+b/26016241
+
+Change-Id: I15893d38c8b7b449e5a3f1d729f75505a08976a2
+---
+ services/core/java/com/android/server/audio/AudioService.java | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/services/core/java/com/android/server/audio/AudioService.java b/services/core/java/com/android/server/audio/AudioService.java
+index ff3f6433..b7ba3dda 100644
+--- a/services/core/java/com/android/server/audio/AudioService.java
++++ b/services/core/java/com/android/server/audio/AudioService.java
+@@ -3638,6 +3638,9 @@ public class AudioService extends IAudioService.Stub {
+             String caller, int flags) {
+         final boolean isTv = mPlatformType == AudioSystem.PLATFORM_TELEVISION;
+         int result = FLAG_ADJUST_VOLUME;
++        if (isTv) {
++            return result;
++        }
+         int ringerMode = getRingerModeInternal();
+ 
+         switch (ringerMode) {
+-- 
+2.43.0
+

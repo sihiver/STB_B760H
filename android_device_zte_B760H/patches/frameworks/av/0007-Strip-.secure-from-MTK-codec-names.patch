@@ -1,0 +1,58 @@
+From 30ae7e82cb6ca0c303a896f7fc97405988ae9972 Mon Sep 17 00:00:00 2001
+From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
+Date: Sun, 4 Oct 2026 07:48:29 +0700
+Subject: [PATCH 7/7] Strip .secure from MTK codec names
+
+The old MTK OMX blobs have no .secure variants, but Cobalt-based
+apps require codecs with that suffix for DRM-protected content to
+play. Widevine L3 decrypts in software anyway (and this device has
+nothing better), so just drop the suffix and give it the plain decoder.
+
+Change-Id: Iad1d1339949caba38ea823128568bac5b7f186ec
+---
+ media/libstagefright/ACodec.cpp     | 9 ++++++++-
+ media/libstagefright/MediaCodec.cpp | 8 +++++++-
+ 2 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index 3aecd47..d6bcce1 100644
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -8472,7 +8472,14 @@ status_t ACodec::queryCapabilities(
+     sp<CodecObserver> observer = new CodecObserver;
+     IOMX::node_id node = 0;
+ 
+-    err = omx->allocateNode(name.c_str(), observer, NULL, &node);
++    AString newName = name;
++#ifdef MTK_HARDWARE
++    if (newName.startsWith("OMX.MTK.") && newName.endsWith(".secure")) {
++        newName.erase(newName.size() - 7, 7);
++    }
++#endif
++
++    err = omx->allocateNode(newName.c_str(), observer, NULL, &node);
+     if (err != OK) {
+         client.disconnect();
+         return err;
+diff --git a/media/libstagefright/MediaCodec.cpp b/media/libstagefright/MediaCodec.cpp
+index a8e801f..eaabffb 100644
+--- a/media/libstagefright/MediaCodec.cpp
++++ b/media/libstagefright/MediaCodec.cpp
+@@ -327,7 +327,13 @@ sp<CodecBase> MediaCodec::GetCodecBase(const AString &name, bool nameIsType) {
+     }
+ }
+ 
+-status_t MediaCodec::init(const AString &name, bool nameIsType, bool encoder) {
++status_t MediaCodec::init(const AString &origName, bool nameIsType, bool encoder) {
++    AString name = origName;
++#ifdef MTK_HARDWARE
++    if (!nameIsType && name.startsWith("OMX.MTK.") && name.endsWith(".secure")) {
++        name.erase(name.size() - 7, 7);
++    }
++#endif
+     mResourceManagerService->init();
+ 
+     // save init parameters for reset
+-- 
+2.43.0
+

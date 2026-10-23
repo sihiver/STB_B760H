@@ -142,50 +142,41 @@ jobs:
             ls -lh external/chromium-webview/prebuilt/arm64/webview.apk || true
           fi
 
-      - name: Copy Device, Kernel, & Vendor Trees
+      - name: Copy Device & Vendor Trees
         run: |
           WORK_DIR="$GITHUB_WORKSPACE"
           cd ~/android/lineage
           
-          # Device tree
-          mkdir -p device/zte/B760H
+          # Device tree (b760h)
+          mkdir -p device/zte/b760h
           if [ -d "$WORK_DIR/android_device_zte_B760H" ]; then
-            cp -r "$WORK_DIR/android_device_zte_B760H"/* device/zte/B760H/
-          elif [ -f "$WORK_DIR/AndroidProducts.mk" ]; then
-            cp -r "$WORK_DIR"/* device/zte/B760H/
+            cp -r "$WORK_DIR/android_device_zte_B760H"/* device/zte/b760h/
           fi
+          # Also support uppercase path references
+          ln -sfn b760h device/zte/B760H
           
-          # Kernel tree
-          mkdir -p kernel/zte/B760H
-          if [ -d "$WORK_DIR/android_kernel_lenovo_mt8127" ]; then
-            cp -r "$WORK_DIR/android_kernel_lenovo_mt8127"/* kernel/zte/B760H/
-          else
-            git clone --depth=1 -b cm-14.1 https://github.com/andrew264/android_kernel_lenovo_mt8127.git kernel/zte/B760H/
-          fi
-          
-          # Copy custom b760h_defconfig from device tree into kernel tree
-          if [ -f device/zte/B760H/configs/b760h_defconfig ]; then
-            cp device/zte/B760H/configs/b760h_defconfig kernel/zte/B760H/arch/arm/configs/b760h_defconfig
-          fi
-          
-          # Vendor tree
-          mkdir -p vendor/zte/B760H
+          # Vendor tree (b760h)
+          mkdir -p vendor/zte/b760h
           if [ -d "$WORK_DIR/android_vendor_zte_B760H" ]; then
-            cp -r "$WORK_DIR/android_vendor_zte_B760H"/* vendor/zte/B760H/
-          elif [ -d "$WORK_DIR/vendor" ]; then
-            cp -r "$WORK_DIR/vendor"/* vendor/zte/B760H/
+            cp -r "$WORK_DIR/android_vendor_zte_B760H"/* vendor/zte/b760h/
           fi
+          # Also support uppercase path references
+          ln -sfn b760h vendor/zte/B760H
+          
+          echo "Verified device and vendor trees:"
+          ls -la device/zte/b760h/
+          ls -la vendor/zte/b760h/
 
       - name: Apply MT8127 Patches
         run: |
           cd ~/android/lineage
-          bash device/zte/B760H/patches/patch.sh || true
+          bash device/zte/b760h/patches/patch.sh || true
 
       - name: Build ROM (${{ inputs.target }})
         run: |
           cd ~/android/lineage
           source build/envsetup.sh
-          breakfast lineage_B760H-userdebug || lunch lineage_B760H-userdebug
+          breakfast lineage_b760h-userdebug || lunch lineage_b760h-userdebug || lunch lineage_B760H-userdebug
           
           # Pre-build core framework packages sequentially to prevent race condition or parallel memory spike
           mka org.cyanogenmod.platform-res
@@ -222,10 +213,10 @@ jobs:
         if: always()
         run: |
           mkdir -p "$GITHUB_WORKSPACE/output"
-          cp ~/android/lineage/out/target/product/B760H/*.zip "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
-          cp ~/android/lineage/out/target/product/B760H/boot.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
-          cp ~/android/lineage/out/target/product/B760H/system.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
-          cp ~/android/lineage/out/target/product/B760H/recovery.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/lineage/out/target/product/*/*.zip "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/lineage/out/target/product/*/boot.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/lineage/out/target/product/*/system.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/lineage/out/target/product/*/recovery.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/lineage/build.log "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           echo "Collected artifacts in $GITHUB_WORKSPACE/output:"
           ls -lh "$GITHUB_WORKSPACE/output"

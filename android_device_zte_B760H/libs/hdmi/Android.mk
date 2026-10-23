@@ -1,0 +1,9 @@
+LOCAL_PATH:= $(call my-dir)
+
+include $(CLEAR_VARS)
+LOCAL_SRC_FILES:= hdmi_helper.sh
+LOCAL_MODULE := hdmi_helper
+LOCAL_MODULE_CLASS := EXECUTABLES
+LOCAL_MODULE_PATH	:= $(TARGET_OUT_VENDOR)/bin
+LOCAL_MODULE_SUFFIX := .sh
+include $(BUILD_PREBUILT)
