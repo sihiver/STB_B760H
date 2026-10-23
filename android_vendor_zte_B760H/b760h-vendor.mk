@@ -176,7 +176,7 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/lib/libvcodecdrv.so:system/lib/libvcodecdrv.so \
     vendor/zte/b760h/proprietary/lib/libvp8dec_sa.ca7.so:system/lib/libvp8dec_sa.ca7.so \
     vendor/zte/b760h/proprietary/lib/libvp9dec_sa.ca7.so:system/lib/libvp9dec_sa.ca7.so \
-    vendor/zte/b760h/proprietary/vendor/bin/drvbd:vendor/bin/drvbd \
+    vendor/zte/b760h/proprietary/vendor/bin/drvbd:system/bin/drvbd \
     vendor/zte/b760h/proprietary/vendor/etc/mtk_omx_core.cfg:vendor/etc/mtk_omx_core.cfg \
     vendor/zte/b760h/proprietary/vendor/lib/drm/libdrmwvmplugin.so:vendor/lib/drm/libdrmwvmplugin.so \
     vendor/zte/b760h/proprietary/vendor/lib/libClearMotionFW.so:vendor/lib/libClearMotionFW.so \

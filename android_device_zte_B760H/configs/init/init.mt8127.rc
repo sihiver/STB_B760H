@@ -4,17 +4,13 @@ on early-init
     chown root system /proc/lk_env
     chmod 0660 /proc/lk_env
 
-    # Stops the device from rebooting after a bit.
-    # https://kujadi-tahu.blogspot.com/2019/07/mengobrak-abrik-stb-jadul-zte-b700v5.html?showComment=1593949249247&m=1#c2449595630486194062
     write /proc/net/monitor 0
 
-on early-fs
-    wait /dev/block/mmcblk0p6
-    exec /sbin/busybox_static sh /storage_init.sh
+on init
+    setprop ro.vold.primary_physical 1
 
 on fs
     mount_all /fstab.mt8127
-    exec /system/bin/sh /storage_setprop.sh
 
     setprop ro.config.size_override 1920,1080
 
@@ -29,7 +25,8 @@ on post-fs
     chown system system /data/key_provisioning 
 
 on post-fs-data
-    start hdmi_helper
+    setprop persist.sys.display.resolution 1920x1080
+    setprop persist.vendor.sys.display.resolution 1920x1080
 
     mkdir /data/nvram 0771 system system
     mkdir /data/nvram/md  0770 system system
@@ -62,9 +59,12 @@ on post-fs-data
     chmod 0640 /emmc@sec_ro
     chown root system /emmc@sec_ro
 
+    chmod 0664 /sys/bus/platform/drivers/mem_bw_ctrl/concurrency_scenario
+    chown system media /sys/bus/platform/drivers/mem_bw_ctrl/concurrency_scenario
+
     # VideoCodec, cts should not 0777
     exec /system/bin/mknod /dev/Vcodec c 160 0
-    chmod 0666 /dev/Vcodec
+    chmod 0660 /dev/Vcodec
     chown system media /dev/Vcodec
 
     # Android SEC related device nodes
@@ -86,9 +86,6 @@ on post-fs-data
     chmod 0660 /dev/stpbt
     chown bluetooth radio /dev/stpbt
 
-    chmod 0660 /sys/bus/platform/drivers/mem_bw_ctrl/concurrency_scenario
-    chown media camera /sys/bus/platform/drivers/mem_bw_ctrl/concurrency_scenario
-
     # Char device for BT 3.0 HS
     exec /system/bin/mknod /dev/ampc0 c 151 0
     chown bluetooth bluetooth /dev/ampc0
@@ -100,8 +97,6 @@ on post-fs-data
     mkdir /data/misc/wpa_supplicant 0770 wifi wifi 
     chown wifi wifi /data/misc/wifi
 
-    setprop persist.sys.media.avsync false
-
 on boot
     # Thermal
     chown system system /proc/wmt_tm/wmt_tm
@@ -112,9 +107,8 @@ on boot
 
     chmod 0660 /sys/power/autosleep
 
-    # Keep CPU performant for smooth 1080p video decode and UI responsiveness
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
-    write /sys/devices/system/cpu/cpufreq/hotplug/is_cpu_hotplug_disable 1
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor hotplug
+    write /sys/devices/system/cpu/cpufreq/hotplug/is_cpu_hotplug_disable 0
 
     # wjh Permission of cpu_num_base
     chown system system /sys/devices/system/cpu/cpufreq/hotplug/cpu_num_bsea 
@@ -130,14 +124,6 @@ on boot
     start adbd
     start console
 
-on property:sys.boot_completed=1
-    # Enable ZRAM on boot_complete
-    write /proc/sys/vm/swappiness 80
-    swapon_all /fstab.mt8127
-
-    # Set clock to known good time
-    start restoretime
-
 on early_property:ro.hardware=mt8127
     setprop ro.mtk.hardware mt8127
 
@@ -152,31 +138,19 @@ service nvram_daemon /system/bin/nvram_daemon
     group system
     oneshot
 
-service ir_daemon /vendor/bin/ir_daemon
+service ir_daemon /system/bin/ir_daemon
     class main
     user root
     group root
 
-service hdmi_helper /vendor/bin/hdmi_helper.sh
+service debuggerd /system/bin/aee_aed
     class main
-    user root
-    group root
-    disabled
-    oneshot
 
-service restoretime /vendor/bin/restoretime.sh
-    user root
-    disabled
-    oneshot
-
-service savetime /vendor/bin/savetime.sh
-    class late_start
-    user root
-
-service drvbd /vendor/bin/drvbd
+# What does this do?
+service drvbd /system/bin/logwrapper /system/bin/drvbd
     class main
-    user root
-    group root
+    user system
+    group system
 
 #
 # Connectivity related services
@@ -218,3 +192,11 @@ service conn_launcher /system/bin/logwrapper /system/bin/6620_launcher -p /syste
     user system
     group system
     class core
+
+# Don't know if this is really necessary.
+service mtkbt /system/bin/mtkbt
+	socket bt.int.adp dgram 660 bluetooth net_bt
+	socket bt.a2dp.stream dgram 660 bluetooth net_bt
+	user bluetooth
+	group system net_bt bluetooth net_bt_admin sdcard_rw inet net_admin radio net_raw vpn net_bt_stack
+	oneshot
