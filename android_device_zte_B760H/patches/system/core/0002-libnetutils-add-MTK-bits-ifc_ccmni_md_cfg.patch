@@ -45,7 +45,7 @@ index ff899c0..8c53349 100644
  
  LOCAL_CFLAGS := -Werror
  
-+ifeq ($(BOARD_HAS_MTK_HARDWARE),true)
++ifneq ($(filter true,$(BOARD_USES_MTK_HARDWARE) $(BOARD_HAS_MTK_HARDWARE)),)
 +LOCAL_CFLAGS += -DMTK_HARDWARE -Wno-unused-parameter
 +endif
 +
@@ -81,7 +81,7 @@ index 7739cf4..fcf0529 100644
  static int ifc_ctl_sock = -1;
  static int ifc_ctl_sock6 = -1;
  static pthread_mutex_t ifc_sock_mutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
-@@ -737,3 +745,265 @@ ifc_configure(const char *ifname,
+@@ -737,3 +745,267 @@ ifc_configure(const char *ifname,
  
      return 0;
  }
@@ -92,7 +92,7 @@ index 7739cf4..fcf0529 100644
 +
 +int ifc_reset_connection_by_uid(int uid, int error)
 +{
-+#ifdef HAVE_ANDROID_OS
++#if defined(__ANDROID__) || defined(HAVE_ANDROID_OS)
 +
 +    int tcp_ctl_sock;
 +    int result = -1;
@@ -123,6 +123,8 @@ index 7739cf4..fcf0529 100644
 +    ALOGD("ifc_reset_connection_by_uid, result= %d ",result);
 +    return result;
 +#else
++    (void)uid;
++    (void)error;
 +    return 0;
 +#endif
 +}
