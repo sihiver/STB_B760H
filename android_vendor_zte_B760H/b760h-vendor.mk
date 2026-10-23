@@ -121,7 +121,6 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/lib/libcameracustom.so:system/lib/libcameracustom.so \
     vendor/zte/b760h/proprietary/lib/libcustom_nvram.so:system/lib/libcustom_nvram.so \
     vendor/zte/b760h/proprietary/lib/libcvsd_mtk.so:system/lib/libcvsd_mtk.so \
-    vendor/zte/b760h/proprietary/lib/libdpframework.so:system/lib/libdpframework.so \
     vendor/zte/b760h/proprietary/lib/libdrmmtkutil.so:system/lib/libdrmmtkutil.so \
     vendor/zte/b760h/proprietary/lib/libdrmmtkwhitelist.so:system/lib/libdrmmtkwhitelist.so \
     vendor/zte/b760h/proprietary/lib/libem_support_jni.so:system/lib/libem_support_jni.so \
@@ -201,3 +200,6 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/vendor/lib/libwvm.so:vendor/lib/libwvm.so \
     vendor/zte/b760h/proprietary/vendor/lib/mediadrm/libwvdrmengine.so:vendor/lib/mediadrm/libwvdrmengine.so \
     vendor/zte/b760h/proprietary/xbin/mnld:system/xbin/mnld
+
+PRODUCT_PACKAGES += \
+    libdpframework
