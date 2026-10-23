@@ -22,4 +22,7 @@
     <bool name="def_wifi_on">true</bool>
     <bool name="def_backup_enabled">false</bool>
     <string name="def_backup_transport">com.google.android.backup/.BackupTransportService</string>
+    <bool name="def_show_ime_with_hard_keyboard">true</bool>
+    <string name="def_input_method" translatable="false">org.liskovsoft.androidtv.rukeyboard/com.liskovsoft.leankeyboard.ime.LeanbackImeService</string>
+    <string name="def_enabled_input_methods" translatable="false">org.liskovsoft.androidtv.rukeyboard/com.liskovsoft.leankeyboard.ime.LeanbackImeService:com.google.android.leanback.ime/.LeanbackImeService</string>
 </resources>

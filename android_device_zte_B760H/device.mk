@@ -121,11 +121,15 @@ PRODUCT_PACKAGES += \
 # Extras
 PRODUCT_PACKAGES += \
     Trebuchet \
+    LeanKeyboard \
     DocumentsUI \
     WebViewGoogle \
     SetupWraith \
     B760HSetupCustomizer \
     Overscan
+
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/configs/init/keyboard.rc:system/etc/init/keyboard.rc
 
 # Remove packages
 PRODUCT_PACKAGES += RemovePackages
