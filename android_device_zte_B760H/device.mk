@@ -110,8 +110,10 @@ PRODUCT_PACKAGES += \
     libdpframework
 
 # Settings
+ifneq (,$(filter lineage_b760h,$(PRODUCT_NAME) $(TARGET_PRODUCT)))
 PRODUCT_PACKAGES += \
     TvSettingsMTK
+endif
 
 # Time
 PRODUCT_PACKAGES += \
@@ -119,7 +121,7 @@ PRODUCT_PACKAGES += \
     restoretime
 
 # Extras
-ifeq ($(PRODUCT_NAME),lineage_b760h)
+ifneq (,$(filter lineage_b760h,$(PRODUCT_NAME) $(TARGET_PRODUCT)))
 PRODUCT_PACKAGES += \
     Trebuchet
 endif

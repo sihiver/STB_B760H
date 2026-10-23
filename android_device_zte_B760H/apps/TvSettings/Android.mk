@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ifneq (,$(filter lineage_b760h,$(PRODUCT_NAME) $(TARGET_PRODUCT)))
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
@@ -52,3 +53,4 @@ LOCAL_SRC_FILES := \
 include frameworks/base/packages/SettingsLib/common.mk
 
 include $(BUILD_PACKAGE)
+endif
