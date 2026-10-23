@@ -1,9 +1,6 @@
 # Inherit some common AOSP ATV stuff.
 $(call inherit-product, device/google/atv/products/atv_base.mk)
 
-# Inherit from generic ATV product
-$(call inherit-product, $(SRC_TARGET_DIR)/product/generic_atv_arm.mk)
-
 # Inherit device configuration
 $(call inherit-product, device/zte/b760h/device.mk)
 
