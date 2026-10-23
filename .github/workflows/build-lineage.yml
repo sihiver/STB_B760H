@@ -152,16 +152,12 @@ jobs:
           if [ -d "$WORK_DIR/android_device_zte_B760H" ]; then
             cp -r "$WORK_DIR/android_device_zte_B760H"/* device/zte/b760h/
           fi
-          # Also support uppercase path references
-          ln -sfn b760h device/zte/B760H
           
           # Vendor tree (b760h)
           mkdir -p vendor/zte/b760h
           if [ -d "$WORK_DIR/android_vendor_zte_B760H" ]; then
             cp -r "$WORK_DIR/android_vendor_zte_B760H"/* vendor/zte/b760h/
           fi
-          # Also support uppercase path references
-          ln -sfn b760h vendor/zte/B760H
           
           echo "Verified device and vendor trees:"
           ls -la device/zte/b760h/
