@@ -54,12 +54,14 @@ BOARD_KERNEL_PAGESIZE := 2048
 
 # Boot image config
 BOARD_CUSTOM_BOOTIMG_MK := $(DEVICE_PATH)/configs/helpers/bootimg.mk
+BOARD_KERNEL_CMDLINE := androidboot.selinux=permissive
 BOARD_MKBOOTIMG_ARGS := \
     --base 0x80000000 \
     --pagesize 2048 \
     --kernel_offset 0x00008000 \
     --ramdisk_offset 0x04000000 \
-    --tags_offset 0x00000100
+    --tags_offset 0x00000100 \
+    --cmdline "androidboot.selinux=permissive"
 
 # Recovery
 TARGET_RECOVERY_FSTAB	:= $(DEVICE_PATH)/configs/init/fstab.mt8127
@@ -98,7 +100,7 @@ TARGET_BOOTANIMATION_MULTITHREAD_DECODE := true
 # Media
 BOARD_CANT_REALLOCATE_OMX_BUFFERS := true
 TARGET_OMX_LEGACY_RESCALING := true
-USE_XML_AUDIO_POLICY_CONF := 1
+# USE_XML_AUDIO_POLICY_CONF is disabled: B760H uses audio_policy.conf
 
 # MTK
 BOARD_USES_MTK_HARDWARE := true

@@ -25,6 +25,9 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/bin/audiocmdservice_atci:system/bin/audiocmdservice_atci \
     vendor/zte/b760h/proprietary/bin/guiext-server:system/bin/guiext-server \
     vendor/zte/b760h/proprietary/bin/msensord:system/bin/msensord \
+    vendor/zte/b760h/proprietary/bin/aee_aed:system/bin/aee_aed \
+    vendor/zte/b760h/proprietary/bin/mfv_ut:system/bin/mfv_ut \
+    vendor/zte/b760h/proprietary/bin/mtkbt:system/bin/mtkbt \
     vendor/zte/b760h/proprietary/bin/nvram_agent_binder:system/bin/nvram_agent_binder \
     vendor/zte/b760h/proprietary/bin/nvram_daemon:system/bin/nvram_daemon \
     vendor/zte/b760h/proprietary/bin/pq:system/bin/pq \
@@ -63,7 +66,6 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/lib/egl/libEGL_mali.so:system/lib/egl/libEGL_mali.so \
     vendor/zte/b760h/proprietary/lib/egl/libGLESv1_CM_mali.so:system/lib/egl/libGLESv1_CM_mali.so \
     vendor/zte/b760h/proprietary/lib/egl/libGLESv2_mali.so:system/lib/egl/libGLESv2_mali.so \
-    vendor/zte/b760h/proprietary/lib/hw/audio.primary.mt8127.so:system/lib/hw/audio.primary.mt8127.so \
     vendor/zte/b760h/proprietary/lib/hw/camera.mt8127.so:system/lib/hw/camera.mt8127.so \
     vendor/zte/b760h/proprietary/lib/hw/gps.default.so:system/lib/hw/gps.default.so \
     vendor/zte/b760h/proprietary/lib/hw/gralloc.mt8127.so:system/lib/hw/gralloc.mt8127.so \
@@ -134,7 +136,13 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/lib/libimageio_plat_drv.so:system/lib/libimageio_plat_drv.so \
     vendor/zte/b760h/proprietary/lib/libion.so:system/lib/libion.so \
     vendor/zte/b760h/proprietary/lib/libion_mtk.so:system/lib/libion_mtk.so \
-    vendor/zte/b760h/proprietary/lib/libm4u.so:system/lib/libm4u.so \
+    vendor/zte/b760h/proprietary/lib/libI420colorconvert.so:system/lib/libI420colorconvert.so \
+    vendor/zte/b760h/proprietary/lib/libbtcust.so:system/lib/libbtcust.so \
+    vendor/zte/b760h/proprietary/lib/libbtcusttable.so:system/lib/libbtcusttable.so \
+    vendor/zte/b760h/proprietary/lib/libbtsession.so:system/lib/libbtsession.so \
+    vendor/zte/b760h/proprietary/lib/libextsys.so:system/lib/libextsys.so \
+    vendor/zte/b760h/proprietary/lib/libpalsecurity.so:system/lib/libpalsecurity.so \
+    vendor/zte/b760h/proprietary/lib/libpalwlan_mtk.so:system/lib/libpalwlan_mtk.so \
     vendor/zte/b760h/proprietary/lib/libmatv_cust.so:system/lib/libmatv_cust.so \
     vendor/zte/b760h/proprietary/lib/libmemorydumper.so:system/lib/libmemorydumper.so \
     vendor/zte/b760h/proprietary/lib/libmhalImageCodec.so:system/lib/libmhalImageCodec.so \

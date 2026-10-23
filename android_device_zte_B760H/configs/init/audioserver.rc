@@ -1,0 +1,13 @@
+on boot
+    chmod 0666 /dev/hdmitx
+    chown media audio /dev/hdmitx
+    chmod 0666 /dev/eac
+    chown root audio /dev/eac
+
+service audioserver /system/bin/audioserver
+    class main
+    user audioserver
+    # media gid needed for /dev/fm (radio) and for /data/misc/media (tee)
+    group audio camera drmrpc inet media mediadrm net_bt net_bt_admin net_bw_acct qcom_diag system
+    ioprio rt 4
+    writepid /dev/cpuset/foreground/tasks /dev/stune/foreground/tasks

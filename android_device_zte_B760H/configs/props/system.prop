@@ -36,3 +36,28 @@ box.audio.media.routing_device=AUX_DIGITAL
 box.audio.hdmi.pcm_ch.support=2
 persist.sys.miniavspdif=MiniAV
 zte.stb.net.coexistmode=3
+
+# Device Identity & Fingerprint
+ro.product.model=B760H
+ro.product.brand=ZTE
+ro.product.name=B760H
+ro.product.device=B760H
+ro.build.product=B760H
+ro.build.description=ztemt85_bx_kk-user 4.4.2 KOT49H eng.stb-android.20170607.181315 release-keys
+ro.build.fingerprint=Mebox/ztemt85_bx_kk/ztemt85_bx_kk:4.4.2/KOT49H/20170607.181315:user/release-keys
+ro.bootimage.build.fingerprint=Mebox/ztemt85_bx_kk/ztemt85_bx_kk:4.4.2/KOT49H/20170607.181315:user/release-keys
+
+# Display Resolution Override
+ro.config.size_override=1920,1080
+
+# Dalvik Heap Tuning (1GB RAM)
+dalvik.vm.heapstartsize=8m
+dalvik.vm.heapgrowthlimit=192m
+dalvik.vm.heapsize=384m
+dalvik.vm.heaptargetutilization=0.75
+dalvik.vm.heapminfree=512k
+dalvik.vm.heapmaxfree=8m
+
+# Disable ffmpeg omx plugin (causes mediaserver crash on MTK)
+#media.sf.omx-plugin=libffmpeg_omx.so
+#media.sf.extractor-plugin=libffmpeg_extractor.so
