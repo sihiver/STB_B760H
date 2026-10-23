@@ -200,6 +200,3 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/vendor/lib/libwvm.so:vendor/lib/libwvm.so \
     vendor/zte/b760h/proprietary/vendor/lib/mediadrm/libwvdrmengine.so:vendor/lib/mediadrm/libwvdrmengine.so \
     vendor/zte/b760h/proprietary/xbin/mnld:system/xbin/mnld
-
-PRODUCT_PACKAGES += \
-    libdpframework

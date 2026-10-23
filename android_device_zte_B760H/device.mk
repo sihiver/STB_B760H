@@ -113,7 +113,8 @@ PRODUCT_PACKAGES += \
 
 # Dependencies
 PRODUCT_PACKAGES += \
-    libm4u
+    libm4u \
+    libdpframework
 
 # Settings
 PRODUCT_PACKAGES += \
