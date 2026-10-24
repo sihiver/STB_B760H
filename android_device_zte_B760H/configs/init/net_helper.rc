@@ -1,0 +1,4 @@
+service net_helper /system/bin/sh /system/bin/net_helper.sh
+    class main
+    user root
+    group root system

@@ -42,7 +42,8 @@ PRODUCT_COPY_FILES += \
 # Init & Helpers
 PRODUCT_COPY_FILES += \
     $(call find-copy-subdir-files,*,${DEVICE_PATH}/configs/init,root) \
-    $(DEVICE_PATH)/configs/helpers/net_helper.sh:system/bin/net_helper.sh
+    $(DEVICE_PATH)/configs/helpers/net_helper.sh:system/bin/net_helper.sh \
+    $(DEVICE_PATH)/configs/init/net_helper.rc:system/etc/init/net_helper.rc
 
 # Recovery
 PRODUCT_COPY_FILES += \
