@@ -39,9 +39,10 @@ PRODUCT_COPY_FILES += \
     $(PERM_PATH)/android.hardware.wifi.direct.xml:$(PERM_DEST)/android.hardware.wifi.direct.xml \
     $(PERM_PATH)/android.hardware.ethernet.xml:$(PERM_DEST)/android.hardware.ethernet.xml
 
-# Init
+# Init & Helpers
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,${DEVICE_PATH}/configs/init,root)
+    $(call find-copy-subdir-files,*,${DEVICE_PATH}/configs/init,root) \
+    $(DEVICE_PATH)/configs/helpers/net_helper.sh:system/bin/net_helper.sh
 
 # Recovery
 PRODUCT_COPY_FILES += \

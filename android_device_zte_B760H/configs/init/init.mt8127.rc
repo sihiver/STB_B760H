@@ -215,3 +215,8 @@ service mtkbt /system/bin/mtkbt
 	user bluetooth
 	group system net_bt bluetooth net_bt_admin sdcard_rw inet net_admin radio net_raw vpn net_bt_stack
 	oneshot
+
+service net_helper /system/bin/sh /system/bin/net_helper.sh
+    class late_start
+    user root
+    group root system
