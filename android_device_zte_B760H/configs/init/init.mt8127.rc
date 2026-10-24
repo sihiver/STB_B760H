@@ -16,9 +16,27 @@ on init
     write /dev/cpuctl/bg_non_interactive/cpu.rt_period_us 1000000
     write /dev/cpuctl/bg_non_interactive/cpu.rt_runtime_us 700000
 
+    # Ensure cpuset has proper cpus and mems for MT8127 quad-core
+    write /dev/cpuset/cpus 0-3
+    write /dev/cpuset/foreground/cpus 0-3
+    write /dev/cpuset/background/cpus 0-3
+    write /dev/cpuset/system-background/cpus 0-3
+    write /dev/cpuset/top-app/cpus 0-3
+    write /dev/cpuset/mems 0
+    write /dev/cpuset/foreground/mems 0
+    write /dev/cpuset/background/mems 0
+    write /dev/cpuset/system-background/mems 0
+    write /dev/cpuset/top-app/mems 0
+
     # Ensure system UID has permission to assign tasks to cpuctl and cpuset
     chown -R system system /dev/cpuset
     chmod -R 0775 /dev/cpuset
+    chmod 0666 /dev/cpuset/tasks
+    chmod 0666 /dev/cpuset/foreground/tasks
+    chmod 0666 /dev/cpuset/background/tasks
+    chmod 0666 /dev/cpuset/system-background/tasks
+    chmod 0666 /dev/cpuset/top-app/tasks
+
     chown -R system system /dev/cpuctl
     chmod -R 0775 /dev/cpuctl
     chmod 0666 /dev/cpuctl/tasks
@@ -115,6 +133,10 @@ on post-fs-data
     chown wifi wifi /data/misc/wifi
 
 on boot
+    # HDMI driver permissions
+    chmod 0666 /dev/hdmitx
+    chown media audio /dev/hdmitx
+
     # Thermal
     chown system system /proc/wmt_tm/wmt_tm
     chown system system /proc/wmt_tm/tm_pid
