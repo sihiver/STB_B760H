@@ -25,7 +25,6 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/bin/audiocmdservice_atci:system/bin/audiocmdservice_atci \
     vendor/zte/b760h/proprietary/bin/guiext-server:system/bin/guiext-server \
     vendor/zte/b760h/proprietary/bin/msensord:system/bin/msensord \
-    vendor/zte/b760h/proprietary/bin/aee_aed:system/bin/aee_aed \
     vendor/zte/b760h/proprietary/bin/mfv_ut:system/bin/mfv_ut \
     vendor/zte/b760h/proprietary/bin/mtkbt:system/bin/mtkbt \
     vendor/zte/b760h/proprietary/bin/nvram_agent_binder:system/bin/nvram_agent_binder \

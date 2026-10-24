@@ -7,7 +7,21 @@ on early-init
     write /proc/net/monitor 0
 
 on init
+    # Fix missing cpuctl bg_non_interactive causing system_server/logd crashes
+    mkdir /dev/cpuctl/bg_non_interactive
+    chown system system /dev/cpuctl/bg_non_interactive
+    chown system system /dev/cpuctl/bg_non_interactive/tasks
+    chmod 0666 /dev/cpuctl/bg_non_interactive/tasks
+    write /dev/cpuctl/bg_non_interactive/cpu.shares 52
+    write /dev/cpuctl/bg_non_interactive/cpu.rt_period_us 1000000
+    write /dev/cpuctl/bg_non_interactive/cpu.rt_runtime_us 700000
 
+    # Ensure system UID has permission to assign tasks to cpuctl and cpuset
+    chown -R system system /dev/cpuset
+    chmod -R 0775 /dev/cpuset
+    chown -R system system /dev/cpuctl
+    chmod -R 0775 /dev/cpuctl
+    chmod 0666 /dev/cpuctl/tasks
 
 on fs
     mount_all /fstab.mt8127
@@ -18,6 +32,9 @@ on post-fs
     # change owner
     chown root system /proc/bootprof
     chown root system /proc/mtprof/cputime
+
+    # Fix socket permissions for logd and daemons
+    chmod 0777 /dev/socket
 
     # change key_provisioning 
     mkdir /data/key_provisioning
@@ -143,8 +160,6 @@ service ir_daemon /system/bin/ir_daemon
     user root
     group root
 
-service debuggerd /system/bin/aee_aed
-    class main
 
 # What does this do?
 service drvbd /system/bin/logwrapper /system/bin/drvbd
