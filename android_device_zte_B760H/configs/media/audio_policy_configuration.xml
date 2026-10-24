@@ -47,6 +47,7 @@
         <module name="primary" halVersion="2.0">
             <attachedDevices>
                 <item>Speaker</item>
+                <item>HDMI Out</item>
                 <!-- Note: untested.
                 <item>SPDIF</item-->
             </attachedDevices>
@@ -128,7 +129,7 @@
                 <route type="mix" sink="BT SCO Car Kit"
                        sources="primary output"/>
                 <route type="mix" sink="HDMI Out"
-                       sources="hdmi_pcm"/>
+                       sources="primary output,hdmi_pcm"/>
                  <!-- Note: untested. -->
                  <route type="mix" sink="SPDIF"
                        sources="spdif_pcm"/>
