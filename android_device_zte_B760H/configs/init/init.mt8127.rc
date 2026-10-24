@@ -239,6 +239,6 @@ service mtkbt /system/bin/mtkbt
 	oneshot
 
 service net_helper /system/bin/sh /system/bin/net_helper.sh
-    class late_start
+    class main
     user root
     group root system
