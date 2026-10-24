@@ -7,7 +7,7 @@ on early-init
     write /proc/net/monitor 0
 
 on init
-    setprop ro.vold.primary_physical 1
+
 
 on fs
     mount_all /fstab.mt8127

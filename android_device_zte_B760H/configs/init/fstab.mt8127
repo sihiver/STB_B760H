@@ -14,6 +14,6 @@
 /dev/block/zram0	    none		swap	defaults    zramsize=536870912
 
 # Vold-managed volumes ("block device" is actually a sysfs devpath)
-/devices/platform/mtk-msdc.0/mmc_host*	auto	vfat	defaults	voldmanaged=sdcard0:8,nonremovable,noemulatedsd
+#/devices/platform/mtk-msdc.0/mmc_host*	auto	vfat	defaults	voldmanaged=sdcard0:8,nonremovable,noemulatedsd
 /devices/platform/mtk-msdc.1/mmc_host*	auto	auto	defaults	voldmanaged=sdcard1:auto,encryptable=userdata
 /devices/platform/mt_usb*		        auto	auto	defaults	voldmanaged=usb:auto
