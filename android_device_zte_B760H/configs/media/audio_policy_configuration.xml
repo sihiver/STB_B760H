@@ -47,7 +47,6 @@
         <module name="primary" halVersion="2.0">
             <attachedDevices>
                 <item>Speaker</item>
-                <item>HDMI Out</item>
                 <!-- Note: untested.
                 <item>SPDIF</item-->
             </attachedDevices>
@@ -59,7 +58,7 @@
                 </mixPort>
                 <mixPort name="hdmi_pcm" role="source">
                     <profile name="" format="AUDIO_FORMAT_PCM_16_BIT"
-                             samplingRates="44100"
+                             samplingRates="44100,48000"
                              channelMasks="AUDIO_CHANNEL_OUT_STEREO"/>
                 </mixPort>
                 <mixPort name="spdif_pcm" role="source">
@@ -129,7 +128,7 @@
                 <route type="mix" sink="BT SCO Car Kit"
                        sources="primary output"/>
                 <route type="mix" sink="HDMI Out"
-                       sources="primary output,hdmi_pcm"/>
+                       sources="hdmi_pcm"/>
                  <!-- Note: untested. -->
                  <route type="mix" sink="SPDIF"
                        sources="spdif_pcm"/>
