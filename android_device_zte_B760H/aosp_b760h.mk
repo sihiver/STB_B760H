@@ -9,6 +9,6 @@ $(call inherit-product, device/zte/b760h/device.mk)
 
 # Device identifier. This must come after all inclusions.
 PRODUCT_DEVICE := b760h
-PRODUCT_BRAND := ZTE
-PRODUCT_MANUFACTURER := ZTE
-PRODUCT_MODEL := B760H
+PRODUCT_BRAND := google
+PRODUCT_MANUFACTURER := Asus
+PRODUCT_MODEL := Nexus Player
