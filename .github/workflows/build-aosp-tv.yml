@@ -189,6 +189,20 @@ jobs:
             exit $BUILD_STATUS
           fi
 
+      - name: Wrap boot/recovery images for MTK LK (AOSP ignores BOARD_CUSTOM_BOOTIMG_MK)
+        run: |
+          cd ~/android/aosp
+          H=device/zte/b760h/configs/helpers
+          for out in out/target/product/*/; do
+            for kind in boot recovery; do
+              img="${out}${kind}.img"
+              [ -f "$img" ] || continue
+              cp "$img" "${img}.plain"
+              python3 "$H/wrap_mtk_bootimg.py" "$kind" "${img}.plain" "$img" "$H/zte_${kind}_header.bin"
+              xxd -l 16 "$img"
+            done
+          done
+
       - name: Collect Output Artifacts
         if: always()
         run: |
