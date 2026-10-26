@@ -1,7 +1,8 @@
 #!/system/bin/sh
 # net_helper.sh - Auto route default gateway and DNS for eth0 & wlan0
 
-# Disable captive portal checks so apps and system don't stall waiting for Google check
+# Disable captive portal checks after system framework is ready
+sleep 5
 settings put global captive_portal_mode 0 2>/dev/null
 settings put global captive_portal_detection_enabled 0 2>/dev/null
 

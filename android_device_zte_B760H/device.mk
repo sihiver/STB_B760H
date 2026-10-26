@@ -39,9 +39,21 @@ PRODUCT_COPY_FILES += \
     $(PERM_PATH)/android.hardware.wifi.direct.xml:$(PERM_DEST)/android.hardware.wifi.direct.xml \
     $(PERM_PATH)/android.hardware.ethernet.xml:$(PERM_DEST)/android.hardware.ethernet.xml
 
-# Init & Helpers
+# Default properties for permissive/root boot
+ADDITIONAL_DEFAULT_PROPERTIES += \
+    ro.secure=0 \
+    ro.adb.secure=0 \
+    ro.device.cache_dir=/cache \
+    persist.sys.usb.config=none
+
+# Init (Ramdisk Root)
 PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,${DEVICE_PATH}/configs/init,root) \
+    $(DEVICE_PATH)/configs/init/init.mt8127.rc:root/init.mt8127.rc \
+    $(DEVICE_PATH)/configs/init/ueventd.mt8127.rc:root/ueventd.mt8127.rc \
+    $(DEVICE_PATH)/configs/init/fstab.mt8127:root/fstab.mt8127
+
+# Helpers
+PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/configs/helpers/net_helper.sh:system/bin/net_helper.sh \
     $(DEVICE_PATH)/configs/init/net_helper.rc:system/etc/init/net_helper.rc
 

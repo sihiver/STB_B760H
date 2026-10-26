@@ -1,4 +1,4 @@
 service net_helper /system/bin/sh /system/bin/net_helper.sh
-    class main
+    class late_start
     user root
     group root system
