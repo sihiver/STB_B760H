@@ -11,7 +11,7 @@
 -app/YouTubeLeanback/YouTubeLeanback.apk
 -priv-app/TV/TV.apk
 -priv-app/GoogleExtServices/GoogleExtServices.apk
--priv-app/PrebuiltGmsCorePano/PrebuiltGmsCorePano.apk|456f5d6a701ba1b4977dc6967853decafc61e17e
+-priv-app/PrebuiltGmsCorePano/PrebuiltGmsCorePano.apk
 -priv-app/ConfigUpdater/ConfigUpdater.apk
 -priv-app/GoogleServicesFramework/GoogleServicesFramework.apk
 -priv-app/Katniss/Katniss.apk
@@ -20,7 +20,7 @@
 -priv-app/CanvasPackageInstaller/CanvasPackageInstaller.apk
 -priv-app/RecommendationsService/RecommendationsService.apk
 -priv-app/LeanbackLauncher/LeanbackLauncher.apk
--priv-app/Tubesky/Tubesky.apk|3f9fbac966ea6b5429490eef1a162ccd326c2594
+-priv-app/Tubesky/Tubesky.apk
 
 etc/sysconfig/google.xml
 etc/sysconfig/google_atv.xml

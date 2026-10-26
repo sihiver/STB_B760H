@@ -1,6 +1,7 @@
 #!/bin/bash
 #
 # Copyright (C) 2016 The CyanogenMod Project
+# Copyright (C) 2017-2026 The LineageOS Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,20 +33,39 @@ if [ ! -f "$HELPER" ]; then
 fi
 . "$HELPER"
 
-if [ $# -eq 0 ]; then
-  SRC=adb
+SRC="$1"
+CLEANUP_DUMP=false
+
+DEFAULT_GAPPS_URL="https://sourceforge.net/projects/opengapps/files/arm/20220215/open_gapps-arm-7.1-tvstock-20220215.zip/download"
+
+if [ -z "$SRC" ]; then
+    # Look for existing zip in CM_ROOT or MY_DIR
+    FOUND_ZIP=$(find "$CM_ROOT" "$MY_DIR" -maxdepth 2 -name "open_gapps-arm-7.1-tvstock*.zip" 2>/dev/null | head -n 1)
+    if [ -n "$FOUND_ZIP" ] && [ -f "$FOUND_ZIP" ]; then
+        SRC="$FOUND_ZIP"
+        echo "Found local OpenGApps zip: $SRC"
+    else
+        echo "No source specified and no local zip found. Fetching from SourceForge..."
+        SRC="$DEFAULT_GAPPS_URL"
+    fi
+fi
+
+if [[ "$SRC" =~ ^https?:// ]]; then
+    TEMP_ZIP=$(mktemp --suffix=.zip)
+    echo "Downloading OpenGApps from $SRC..."
+    curl -L -o "$TEMP_ZIP" "$SRC"
+    SRC="$TEMP_ZIP"
+    CLEANUP_ZIP=true
 else
-  if [ $# -eq 1 ]; then
-    SRC=$1
-  else
-    echo "$0: bad number of arguments"
-    echo ""
-    echo "usage: $0 [PATH_TO_EXPANDED_ROM]"
-    echo ""
-    echo "If PATH_TO_EXPANDED_ROM is not specified, blobs will be extracted from"
-    echo "the device using adb pull."
-    exit 1
-  fi
+    CLEANUP_ZIP=false
+fi
+
+if [ -f "$SRC" ] && [[ "$SRC" == *.zip ]]; then
+    TEMP_DUMP=$(mktemp -d)
+    echo "Unpacking OpenGApps tar.lz archives from $SRC to $TEMP_DUMP..."
+    python3 "$MY_DIR"/configs/helpers/extract_opengapps_zip.py "$SRC" "$TEMP_DUMP/system"
+    SRC="$TEMP_DUMP"
+    CLEANUP_DUMP=true
 fi
 
 # Initialize the helper
@@ -56,3 +76,12 @@ extract "$MY_DIR"/configs/helpers/proprietary-gapps.txt "$SRC"
 DEVICE_BLOB_ROOT="${CM_ROOT}"/vendor/"${VENDOR}"/"${DEVICE}"/proprietary
 
 "$MY_DIR"/configs/helpers/setup-makefiles-gapps.sh
+
+if [ "$CLEANUP_DUMP" = true ]; then
+    rm -rf "$TEMP_DUMP"
+fi
+if [ "$CLEANUP_ZIP" = true ]; then
+    rm -f "$TEMP_ZIP"
+fi
+
+echo "OpenGApps tvstock extraction complete."

@@ -73,7 +73,7 @@ jobs:
             bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf \
             imagemagick lib32ncurses-dev lib32z1-dev liblz4-tool \
             libssl-dev libxml2 libxml2-utils lzop pngcrush rsync \
-            schedtool squashfs-tools xsltproc zip unzip zlib1g-dev libncurses6 libtinfo6 libncurses-dev || true
+            schedtool squashfs-tools xsltproc zip unzip zlib1g-dev libncurses6 libtinfo6 libncurses-dev lzip || true
           
           # Relax ImageMagick security policy
           sudo sed -i 's/<policy domain="coder" rights="none"/<!-- <policy domain="coder" rights="none"/' /etc/ImageMagick-6/policy.xml || true
@@ -159,9 +159,19 @@ jobs:
             cp -r "$WORK_DIR/android_vendor_zte_B760H"/* vendor/zte/b760h/
           fi
           
-          echo "Verified device and vendor trees:"
+          # OpenGApps tree (arm_tvstock)
+          mkdir -p vendor/gapps/arm_tvstock
+          if [ -d "$WORK_DIR/vendor/gapps/arm_tvstock" ]; then
+            cp -r "$WORK_DIR/vendor/gapps/arm_tvstock"/* vendor/gapps/arm_tvstock/
+          else
+            echo "OpenGApps tvstock not pre-extracted; extracting via extract-gapps.sh..."
+            bash device/zte/b760h/extract-gapps.sh "https://sourceforge.net/projects/opengapps/files/arm/20220215/open_gapps-arm-7.1-tvstock-20220215.zip/download"
+          fi
+          
+          echo "Verified device, vendor, and gapps trees:"
           ls -la device/zte/b760h/
           ls -la vendor/zte/b760h/
+          ls -la vendor/gapps/arm_tvstock/
 
       - name: Apply MT8127 Patches
         run: |
