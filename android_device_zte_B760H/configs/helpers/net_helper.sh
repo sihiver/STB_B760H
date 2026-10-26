@@ -1,11 +1,31 @@
 #!/system/bin/sh
-# net_helper.sh - Auto route default gateway and DNS for eth0 & wlan0
+# net_helper.sh - Auto route default gateway, DNS, and disable captive portal
 
-# Disable captive portal checks after system framework is ready
-sleep 5
-settings put global captive_portal_mode 0 2>/dev/null
-settings put global captive_portal_detection_enabled 0 2>/dev/null
+# 1. Restore time immediately if clock is reset (< 2020)
+FLOOR=1577836800 # 2020-01-01
+CUR_TIME=$(date +%s 2>/dev/null)
+if [ -z "$CUR_TIME" ] || [ "$CUR_TIME" -lt "$FLOOR" ]; then
+    BUILD_DATE=$(getprop ro.build.date.utc)
+    if [ -n "$BUILD_DATE" ] && [ "$BUILD_DATE" -ge "$FLOOR" ]; then
+        date @"$BUILD_DATE" SET 2>/dev/null
+    fi
+fi
 
+# 2. Disable captive portal checks and set fast NTP as soon as framework is ready
+(
+    for i in $(seq 1 45); do
+        if settings get global captive_portal_mode >/dev/null 2>&1; then
+            settings put global captive_portal_mode 0 2>/dev/null
+            settings put global captive_portal_detection_enabled 0 2>/dev/null
+            settings put global captive_portal_server localhost 2>/dev/null
+            settings put global ntp_server id.pool.ntp.org 2>/dev/null
+            break
+        fi
+        sleep 2
+    done
+) &
+
+# 3. Main network route & DNS watchdog loop
 while true; do
     GW=""
     IFACE=""
@@ -41,7 +61,9 @@ while true; do
 
     if [ -n "$GW" ] && [ -n "$IFACE" ]; then
         if ! ip route show table main 2>/dev/null | grep -q "default via $GW dev $IFACE"; then
-            ip rule add from all lookup main pref 1000 2>/dev/null
+            if ! ip rule show 2>/dev/null | grep -q "lookup main"; then
+                ip rule add from all lookup main pref 1000 2>/dev/null
+            fi
             ip route replace default via "$GW" dev "$IFACE" table main 2>/dev/null
 
             # Add local subnet to main table

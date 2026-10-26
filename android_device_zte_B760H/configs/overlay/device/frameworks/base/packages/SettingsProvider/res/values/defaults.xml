@@ -23,4 +23,7 @@
     <bool name="def_backup_enabled">false</bool>
     <string name="def_backup_transport">com.google.android.backup/.BackupTransportService</string>
     <bool name="def_show_ime_with_hard_keyboard">true</bool>
+    <integer name="def_captive_portal_mode">0</integer>
+    <bool name="def_captive_portal_detection_enabled">false</bool>
+    <string name="def_captive_portal_server">localhost</string>
 </resources>
