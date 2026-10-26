@@ -122,6 +122,9 @@
 
 # mtk_sched
 /dev/mtk_sched              0660	system  media
+
+# Vcodec hardware decoder
+/dev/Vcodec                 0666	system  media
    
 # BT SCO CVSD, for MT6572 and MT6582 CVSD codec on AP 
 /dev/ebc                    0660	system  media
