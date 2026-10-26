@@ -106,7 +106,7 @@ Only the three quirks included above are recognized at this point:
             <Limit name="block-count" range="1-8160" />
             <Limit name="blocks-per-second" range="1-489600" />
             <Limit name="bitrate" range="1-40000000" />
-            <Limit name="frame-rate" range="1-60" />
+            <Limit name="frame-rate" range="1-30" />
             <Quirk name="requires-allocate-on-input-ports" />
             <Feature name="adaptive-playback"/>
             <Limit name="concurrent-instances" max="16" />

@@ -41,6 +41,7 @@
             <Limit name="block-count" range="1-3600" />
             <Limit name="blocks-per-second" range="1-108000" />
             <Limit name="bitrate" range="1-10000000" />
+            <Limit name="frame-rate" range="1-30" />
             <Feature name="adaptive-playback" />
         </MediaCodec>
         <MediaCodec name="OMX.google.hevc.decoder" type="video/hevc">
@@ -69,6 +70,7 @@
             <Limit name="block-count" range="1-3600" />
             <Limit name="blocks-per-second" range="1-108000" />
             <Limit name="bitrate" range="1-10000000" />
+            <Limit name="frame-rate" range="1-30" />
             <Feature name="adaptive-playback" />
         </MediaCodec>
     </Decoders>
