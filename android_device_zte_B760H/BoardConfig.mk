@@ -94,7 +94,11 @@ MAX_EGL_CACHE_KEY_SIZE := 12*1024
 MAX_EGL_CACHE_SIZE := 1024*1024
 
 # Bootanimation
+ifneq (,$(filter lineage_b760h,$(PRODUCT_NAME) $(TARGET_PRODUCT)))
+TARGET_BOOTANIMATION := $(DEVICE_PATH)/bootanimation_lineage.zip
+else
 TARGET_BOOTANIMATION := $(DEVICE_PATH)/bootanimation.zip
+endif
 TARGET_BOOTANIMATION_MULTITHREAD_DECODE := true
 
 # Media

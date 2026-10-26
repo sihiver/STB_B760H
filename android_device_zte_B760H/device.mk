@@ -19,8 +19,13 @@ PRODUCT_SHIPPING_API_LEVEL := 19
 TARGET_BOOTANIMATION_MULTITHREAD_DECODE := true
 TARGET_SCREEN_WIDTH := 1920
 TARGET_SCREEN_HEIGHT := 1080
+ifneq (,$(filter lineage_b760h,$(PRODUCT_NAME) $(TARGET_PRODUCT)))
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/bootanimation_lineage.zip:system/media/bootanimation.zip
+else
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/bootanimation.zip:system/media/bootanimation.zip
+endif
 
 # Overlays
 DEVICE_PACKAGE_OVERLAYS += \
