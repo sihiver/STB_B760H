@@ -151,8 +151,6 @@ PRODUCT_PACKAGES += \
     LeanKeyboard \
     DocumentsUI \
     WebViewGoogle \
-    SetupWraith \
-    B760HSetupCustomizer \
     Overscan
 
 PRODUCT_COPY_FILES += \
