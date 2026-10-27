@@ -25,6 +25,7 @@ ts.fastgetformat=1
 wifi.interface=wlan0
 wifi.tethering.interface=ap0
 wifi.direct.interface=p2p0
+wifi.supplicant_scan_interval=180
 
 # Root
 persist.sys.root_access=3

@@ -1,7 +1,12 @@
 #!/system/bin/sh
 # net_helper.sh - Auto route default gateway, DNS, and disable captive portal
 
-# 1. Restore time immediately if clock is reset (< 2020)
+# 1. Disable IPv6 to eliminate phantom DNS timeouts (fe80::1 RDNSS delay)
+echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6 2>/dev/null
+echo 1 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6 2>/dev/null
+echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6 2>/dev/null
+
+# 2. Restore time immediately if clock is reset (< 2020)
 FLOOR=1577836800 # 2020-01-01
 CUR_TIME=$(date +%s 2>/dev/null)
 if [ -z "$CUR_TIME" ] || [ "$CUR_TIME" -lt "$FLOOR" ]; then
@@ -11,9 +16,9 @@ if [ -z "$CUR_TIME" ] || [ "$CUR_TIME" -lt "$FLOOR" ]; then
     fi
 fi
 
-# 2. Disable captive portal, auto-provision, and disable Setup Wizard as soon as framework is ready
+# 3. Disable captive portal, auto-provision, and disable Setup Wizard as soon as framework is ready
 (
-    for i in $(seq 1 45); do
+    while true; do
         if settings get global captive_portal_mode >/dev/null 2>&1; then
             settings put global captive_portal_mode 0 2>/dev/null
             settings put global captive_portal_detection_enabled 0 2>/dev/null
@@ -28,7 +33,7 @@ fi
             pm disable com.android.provision 2>/dev/null
             break
         fi
-        sleep 2
+        sleep 1
     done
 ) &
 
