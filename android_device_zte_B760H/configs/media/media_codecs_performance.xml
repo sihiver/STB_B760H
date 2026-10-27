@@ -122,7 +122,8 @@ Only the three quirks included above are recognized at this point:
         <MediaCodec name="OMX.MTK.VIDEO.DECODER.AVC" type="video/avc" update="true">
             <Limit name="measured-frame-rate-320x240" range="186-646" />
             <Limit name="measured-frame-rate-720x480" range="124-433" />
-            <Limit name="measured-frame-rate-1280x720" range="20-30" />
+            <Limit name="measured-frame-rate-1280x720" range="74-256" />
+            <Limit name="measured-frame-rate-1920x1080" range="26-90" />
         </MediaCodec>
          <MediaCodec name="OMX.MTK.VIDEO.DECODER.HEVC" type="video/hevc" update="true">
             <Limit name="measured-frame-rate-352x288" range="177-615" />
@@ -152,7 +153,7 @@ Only the three quirks included above are recognized at this point:
         <MediaCodec name="OMX.google.h264.decoder" type="video/avc" update="true">
             <Limit name="measured-frame-rate-320x240" range="183-636" />
             <Limit name="measured-frame-rate-720x480" range="45-156" />
-            <Limit name="measured-frame-rate-1280x720" range="20-30" />
+            <Limit name="measured-frame-rate-1280x720" range="28-96" />
         </MediaCodec>
          <MediaCodec name="OMX.google.hevc.decoder" type="video/hevc" update="true">
             <Limit name="measured-frame-rate-352x288" range="182-634" />
@@ -168,7 +169,7 @@ Only the three quirks included above are recognized at this point:
         <MediaCodec name="OMX.google.vp9.decoder" type="video/x-vnd.on2.vp9" update="true">
             <Limit name="measured-frame-rate-320x240" range="144-502" />
             <Limit name="measured-frame-rate-640x360" range="109-378" />
-            <Limit name="measured-frame-rate-1280x720" range="20-30" />
+            <Limit name="measured-frame-rate-1280x720" range="30-104" />
         </MediaCodec>
     </Decoders>
 </MediaCodecs>

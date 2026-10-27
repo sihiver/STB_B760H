@@ -38,10 +38,9 @@ box.audio.hdmi.pcm_ch.support=2
 persist.sys.miniavspdif=MiniAV
 zte.stb.net.coexistmode=3
 
-# Device Identity (Spoofed to Google Nexus Player to bypass YouTube Leanback deny list)
-ro.product.model=Nexus Player
-ro.product.brand=google
-ro.product.manufacturer=Asus
+# Device Identity & Fingerprint
+ro.product.model=B760H
+ro.product.brand=ZTE
 ro.product.name=B760H
 ro.product.device=B760H
 ro.build.product=B760H
