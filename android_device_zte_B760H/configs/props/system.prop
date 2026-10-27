@@ -59,6 +59,10 @@ dalvik.vm.heaptargetutilization=0.75
 dalvik.vm.heapminfree=512k
 dalvik.vm.heapmaxfree=8m
 
+# Disable Setup Wizard
+ro.setupwizard.mode=DISABLED
+ro.setupwizard.wifi_required=false
+
 # Disable ffmpeg omx plugin (causes mediaserver crash on MTK)
 #media.sf.omx-plugin=libffmpeg_omx.so
 #media.sf.extractor-plugin=libffmpeg_extractor.so

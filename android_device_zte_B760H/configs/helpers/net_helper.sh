@@ -11,7 +11,7 @@ if [ -z "$CUR_TIME" ] || [ "$CUR_TIME" -lt "$FLOOR" ]; then
     fi
 fi
 
-# 2. Disable captive portal checks and set fast NTP as soon as framework is ready
+# 2. Disable captive portal, auto-provision, and disable Setup Wizard as soon as framework is ready
 (
     for i in $(seq 1 45); do
         if settings get global captive_portal_mode >/dev/null 2>&1; then
@@ -19,6 +19,13 @@ fi
             settings put global captive_portal_detection_enabled 0 2>/dev/null
             settings put global captive_portal_server localhost 2>/dev/null
             settings put global ntp_server id.pool.ntp.org 2>/dev/null
+
+            # Permanently provision device and disable setup wizard
+            settings put global device_provisioned 1 2>/dev/null
+            settings put global setup_wizard_has_run 1 2>/dev/null
+            settings put secure user_setup_complete 1 2>/dev/null
+            pm disable com.google.android.tungsten.setupwraith 2>/dev/null
+            pm disable com.android.provision 2>/dev/null
             break
         fi
         sleep 2
