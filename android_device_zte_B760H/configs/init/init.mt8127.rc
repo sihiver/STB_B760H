@@ -144,7 +144,10 @@ on boot
     chown system system /proc/wmt_tm/wmt_val
     chown system system /proc/wmt_tm/wfd_stat
 
-    chmod 0660 /sys/power/autosleep
+    # Disable autosleep so screen-off stays in safe standby (blank screen, LED on, no reboot)
+    write /sys/power/autosleep off
+    chmod 0440 /sys/power/autosleep
+    chmod 0440 /sys/power/state
 
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor hotplug
     write /sys/devices/system/cpu/cpufreq/hotplug/is_cpu_hotplug_disable 0
