@@ -1,18 +1,23 @@
 #!/system/bin/sh
 # HDMI Power Controller Daemon for ZTE B760H (MT8127)
-# When screen turns off, cuts HDMI signal so TV shows "No Signal".
-# When screen turns on, restores HDMI signal immediately.
+# When screen turns off (standby/sleep), cuts HDMI signal completely
+# so the connected TV displays "No Signal" / "Tidak Ada Sinyal".
+# When screen turns on (wake up), restores HDMI signal immediately.
 
-logcat -c -b main
-logcat -s SurfaceFlinger:D -b main | while read -r line; do
+# Listen to DisplayManagerService state changes in system buffer
+logcat -b system -s DisplayManagerService:I | while read -r line; do
     case "$line" in
-        *"Set power mode=0, type=1"*|*"Set power mode=0, type=0"*)
-            /system/bin/ioctl -l 4 -a 4 /dev/hdmitx 0x4801 0x00000000 >/dev/null 2>&1
-            /system/bin/ioctl -l 4 -a 4 /dev/hdmitx 0x4004480c 0x00000000 >/dev/null 2>&1
+        *"Display device changed state:"*", OFF"*)
+            /system/bin/ioctl -d /dev/hdmitx 0x4801 0 >/dev/null 2>&1
+            /system/bin/ioctl -d /dev/hdmitx 0x4803 0 >/dev/null 2>&1
+            /system/bin/ioctl -d /dev/hdmitx 0x4004480c 0 >/dev/null 2>&1
+            /system/bin/ioctl -d /dev/hdmitx 0xc004480b 0 >/dev/null 2>&1
             ;;
-        *"Set power mode=2, type=0"*|*"Set power mode=2, type=1"*)
-            /system/bin/ioctl -l 4 -a 4 /dev/hdmitx 0x4801 0x00000001 >/dev/null 2>&1
-            /system/bin/ioctl -l 4 -a 4 /dev/hdmitx 0x4004480c 0x00000001 >/dev/null 2>&1
+        *"Display device changed state:"*", ON"*)
+            /system/bin/ioctl -d /dev/hdmitx 0xc004480b 1 >/dev/null 2>&1
+            /system/bin/ioctl -d /dev/hdmitx 0x4004480c 1 >/dev/null 2>&1
+            /system/bin/ioctl -d /dev/hdmitx 0x4801 1 >/dev/null 2>&1
+            /system/bin/ioctl -d /dev/hdmitx 0x4803 1 >/dev/null 2>&1
             ;;
     esac
 done
