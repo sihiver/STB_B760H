@@ -64,7 +64,10 @@ PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/configs/helpers/hdmi_power_daemon:system/bin/hdmi_power_daemon \
     $(DEVICE_PATH)/configs/init/hdmi_power.rc:system/etc/init/hdmi_power.rc
 
-# Recovery
+# Keylayout
+PRODUCT_COPY_FILES += \
+    $(DEVICE_PATH)/configs/keylayout/Vendor_000b_Product_000b.kl:system/usr/keylayout/Vendor_000b_Product_000b.kl
+
 PRODUCT_COPY_FILES += \
     $(call find-copy-subdir-files,*,${DEVICE_PATH}/configs/recovery,recovery/root)
 

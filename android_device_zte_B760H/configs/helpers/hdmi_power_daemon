@@ -14,10 +14,13 @@ logcat -b system -s DisplayManagerService:I | while read -r line; do
             /system/bin/ioctl -d /dev/hdmitx 0xc004480b 0 >/dev/null 2>&1
             ;;
         *"Display device changed state:"*", ON"*)
+            res=$(getprop vendor.hdmi.boot_res)
+            [ -z "$res" ] && res=11
             /system/bin/ioctl -d /dev/hdmitx 0xc004480b 1 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4004480c 1 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4801 1 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4803 1 >/dev/null 2>&1
+            /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$res" >/dev/null 2>&1
             ;;
     esac
 done
