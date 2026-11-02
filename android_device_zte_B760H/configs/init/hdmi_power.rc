@@ -1,0 +1,4 @@
+service hdmi_power /system/bin/hdmi_power_daemon
+    class main
+    user root
+    group root

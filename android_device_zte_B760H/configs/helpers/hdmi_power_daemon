@@ -1,0 +1,18 @@
+#!/system/bin/sh
+# HDMI Power Controller Daemon for ZTE B760H (MT8127)
+# When screen turns off, cuts HDMI signal so TV shows "No Signal".
+# When screen turns on, restores HDMI signal immediately.
+
+logcat -c -b main
+logcat -s SurfaceFlinger:D -b main | while read -r line; do
+    case "$line" in
+        *"Set power mode=0, type=1"*|*"Set power mode=0, type=0"*)
+            /system/bin/ioctl -l 4 -a 4 /dev/hdmitx 0x4801 0x00000000 >/dev/null 2>&1
+            /system/bin/ioctl -l 4 -a 4 /dev/hdmitx 0x4004480c 0x00000000 >/dev/null 2>&1
+            ;;
+        *"Set power mode=2, type=0"*|*"Set power mode=2, type=1"*)
+            /system/bin/ioctl -l 4 -a 4 /dev/hdmitx 0x4801 0x00000001 >/dev/null 2>&1
+            /system/bin/ioctl -l 4 -a 4 /dev/hdmitx 0x4004480c 0x00000001 >/dev/null 2>&1
+            ;;
+    esac
+done
