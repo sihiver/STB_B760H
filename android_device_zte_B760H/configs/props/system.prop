@@ -13,13 +13,18 @@ media.stagefright.legacyencoder=true
 media.stagefright.less-secure=true
 drm.service.enabled=true
 
-# MediaTek Video / Audio optimizations
-streamin.sf.vsyncimprove=1
+# MediaTek Video / Audio optimizations (matching LineageOS)
+streamin.sf.vsyncimprove=0
 mtk.vdec.onlyone.field=0
-mtk.vdec.h264.playfast=1
-mtk.omxvdec.enablefast=1
-fast.feed=1
-ts.fastgetformat=1
+mtk.vdec.h264.playfast=0
+mtk.omxvdec.enablefast=0
+mtk.omxvdec.disableppfw=1
+media.sf.omx-plugin=libffmpeg_omx.so
+media.sf.extractor-plugin=libffmpeg_extractor.so
+persist.sys.media.avsync=true
+video.accelerate.hw=1
+debug.performance.tuning=1
+persist.sys.purgeable_assets=1
 
 # WiFi
 wifi.interface=wlan0
@@ -53,9 +58,10 @@ ro.bootimage.build.fingerprint=Mebox/ztemt85_bx_kk/ztemt85_bx_kk:4.4.2/KOT49H/20
 ro.config.size_override=1920,1080
 
 # Dalvik Heap Tuning (1GB RAM)
+ro.config.low_ram=true
 dalvik.vm.heapstartsize=8m
-dalvik.vm.heapgrowthlimit=192m
-dalvik.vm.heapsize=384m
+dalvik.vm.heapgrowthlimit=64m
+dalvik.vm.heapsize=128m
 dalvik.vm.heaptargetutilization=0.75
 dalvik.vm.heapminfree=512k
 dalvik.vm.heapmaxfree=8m
@@ -63,7 +69,3 @@ dalvik.vm.heapmaxfree=8m
 # Disable Setup Wizard
 ro.setupwizard.mode=DISABLED
 ro.setupwizard.wifi_required=false
-
-# Disable ffmpeg omx plugin (causes mediaserver crash on MTK)
-#media.sf.omx-plugin=libffmpeg_omx.so
-#media.sf.extractor-plugin=libffmpeg_extractor.so

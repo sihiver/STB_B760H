@@ -192,6 +192,14 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/vendor/lib/libMtkOmxVdecEx.so:vendor/lib/libMtkOmxVdecEx.so \
     vendor/zte/b760h/proprietary/vendor/lib/libMtkOmxVenc.so:vendor/lib/libMtkOmxVenc.so \
     vendor/zte/b760h/proprietary/vendor/lib/libWVStreamControlAPI_L3.so:vendor/lib/libWVStreamControlAPI_L3.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libavcodec.so:system/vendor/lib/libavcodec.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libavformat.so:system/vendor/lib/libavformat.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libavutil.so:system/vendor/lib/libavutil.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libswresample.so:system/vendor/lib/libswresample.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libswscale.so:system/vendor/lib/libswscale.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libffmpeg_extractor.so:system/vendor/lib/libffmpeg_extractor.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libffmpeg_omx.so:system/vendor/lib/libffmpeg_omx.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libffmpeg_utils.so:system/vendor/lib/libffmpeg_utils.so \
     vendor/zte/b760h/proprietary/vendor/lib/libh264enc_sa.ca7.so:vendor/lib/libh264enc_sa.ca7.so \
     vendor/zte/b760h/proprietary/vendor/lib/libh264enc_sb.ca7.so:vendor/lib/libh264enc_sb.ca7.so \
     vendor/zte/b760h/proprietary/vendor/lib/libmp4enc_sa.ca7.so:vendor/lib/libmp4enc_sa.ca7.so \

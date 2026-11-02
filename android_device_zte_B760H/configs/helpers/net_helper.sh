@@ -1,7 +1,22 @@
 #!/system/bin/sh
 # net_helper.sh - Auto route default gateway, DNS, and disable captive portal
 
-# 1. Disable IPv6 to eliminate phantom DNS timeouts (fe80::1 RDNSS delay)
+# 1. Hardware video decoder permissions & quad-core CPU performance
+chmod 0666 /dev/Vcodec 2>/dev/null
+echo 1 > /sys/devices/system/cpu/cpufreq/hotplug/is_cpu_hotplug_disable 2>/dev/null
+echo 4 > /sys/devices/system/cpu/cpufreq/hotplug/cpu_num_base 2>/dev/null
+echo 1 > /sys/devices/system/cpu/cpu1/online 2>/dev/null
+echo 1 > /sys/devices/system/cpu/cpu2/online 2>/dev/null
+echo 1 > /sys/devices/system/cpu/cpu3/online 2>/dev/null
+
+# Enable 512MB zRAM if not already active
+if [ -e /dev/block/zram0 ] && ! grep -q zram /proc/swaps 2>/dev/null; then
+    echo 536870912 > /sys/block/zram0/disksize 2>/dev/null
+    mkswap /dev/block/zram0 2>/dev/null
+    swapon /dev/block/zram0 2>/dev/null
+fi
+
+# 2. Disable IPv6 to eliminate phantom DNS timeouts (fe80::1 RDNSS delay)
 echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6 2>/dev/null
 echo 1 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6 2>/dev/null
 echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6 2>/dev/null

@@ -44,10 +44,12 @@ index 9114fdc..e852d85 100644
      }
  
 +#ifdef MTK_HARDWARE
-+    if (mActiveBuffer != 0 &&
-+        mActiveBuffer->getPixelFormat() == HAL_PIXEL_FORMAT_NV12_BLK) {
-+        // Block-format video can't be imported by the GPU. Draw nothing.
-+        return;
++    if (mActiveBuffer != 0) {
++        int fmt = mActiveBuffer->getPixelFormat();
++        if ((fmt >= 0x100 && fmt <= 0x103) || fmt == (int)0x7f000001) {
++            // Block-format video can't be imported by the GPU. Draw nothing.
++            return;
++        }
 +    }
 +#endif
 +
