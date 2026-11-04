@@ -11,6 +11,4 @@ on property:sys.boot_completed=1
     write /sys/power/autosleep off
     chmod 0440 /sys/power/autosleep
     chmod 0440 /sys/power/state
-    exec - root root -- /system/bin/settings put global window_animation_scale 0
-    exec - root root -- /system/bin/settings put global transition_animation_scale 0
-    exec - root root -- /system/bin/settings put global animator_duration_scale 0
+
