@@ -67,7 +67,10 @@ PRODUCT_COPY_FILES += \
 
 # Keylayout
 PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/configs/keylayout/Vendor_000b_Product_000b.kl:system/usr/keylayout/Vendor_000b_Product_000b.kl
+    $(DEVICE_PATH)/configs/keylayout/Vendor_000b_Product_000b.kl:system/usr/keylayout/Vendor_000b_Product_000b.kl \
+    $(DEVICE_PATH)/configs/keylayout/Vendor_2454_Product_6500.kl:system/usr/keylayout/Vendor_2454_Product_6500.kl \
+    $(DEVICE_PATH)/configs/keylayout/mtk-kpd.kl:system/usr/keylayout/mtk-kpd.kl \
+    $(DEVICE_PATH)/configs/keylayout/Vendor_000b_Product_000b.kl:system/usr/keylayout/nec_remote_virtual.kl
 
 PRODUCT_COPY_FILES += \
     $(call find-copy-subdir-files,*,${DEVICE_PATH}/configs/recovery,recovery/root)
