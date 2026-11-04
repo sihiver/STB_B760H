@@ -108,6 +108,9 @@
     -->
     <bool name="config_powerDecoupleInteractiveModeFromDisplay">false</bool>
 
+    <!-- Disable screen-off / screen-on fading animation to prevent Mali-450 GPU SIGSEGV crashes in PowerManagerService -->
+    <bool name="config_animateScreenLights">false</bool>
+
     <!-- Set this to true to enable the platform's auto-power-save modes like doze and
          app standby.  These are not enabled by default because they require a standard
          cloud-to-device messaging service for apps to interact correctly with the modes
