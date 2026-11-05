@@ -4,6 +4,14 @@
 # so the connected TV displays "No Signal" / "Tidak Ada Sinyal".
 # When screen turns on (wake up), restores HDMI signal immediately.
 
+# Auto-format internal SD card partition if missing or unformatted
+if [ -b /dev/block/mmcblk0p8 ]; then
+    if ! blkid /dev/block/mmcblk0p8 2>/dev/null | grep -q "vfat"; then
+        /system/bin/newfs_msdos -F 32 -O android /dev/block/mmcblk0p8 >/dev/null 2>&1
+        sm mount public:179_8 >/dev/null 2>&1
+    fi
+fi
+
 # Listen to DisplayManagerService state changes in system buffer
 logcat -b system -s DisplayManagerService:I | while read -r line; do
     case "$line" in
