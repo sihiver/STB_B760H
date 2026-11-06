@@ -9,7 +9,7 @@ $(call inherit-product, frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-he
 $(call inherit-product-if-exists, frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk)
 
 # Gapps
-$(call inherit-product-if-exists, vendor/gapps/arm_tvstock/arm_tvstock-vendor.mk)
+# $(call inherit-product-if-exists, vendor/gapps/arm_tvstock/arm_tvstock-vendor.mk)
 
 # Characteristics
 PRODUCT_CHARACTERISTICS := tv
