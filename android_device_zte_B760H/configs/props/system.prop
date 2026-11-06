@@ -60,7 +60,7 @@ ro.config.size_override=1920,1080
 # Dalvik Heap Tuning (1GB RAM)
 ro.config.low_ram=true
 dalvik.vm.heapstartsize=8m
-dalvik.vm.heapgrowthlimit=64m
+dalvik.vm.heapgrowthlimit=128m
 dalvik.vm.heapsize=128m
 dalvik.vm.heaptargetutilization=0.75
 dalvik.vm.heapminfree=512k
