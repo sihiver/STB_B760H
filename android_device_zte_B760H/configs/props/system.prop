@@ -44,12 +44,12 @@ box.audio.hdmi.pcm_ch.support=2
 persist.sys.miniavspdif=MiniAV
 zte.stb.net.coexistmode=3
 
-# Device Identity & Fingerprint (Spoofed as ZTE TV B860H for YouTube TV & Play Store certification)
-ro.product.model=B860H
-ro.product.brand=ZTE TV
-ro.product.name=B860H
-ro.product.device=b860h
-ro.build.product=b860h
+# Device Identity & Fingerprint
+ro.product.model=B760H
+ro.product.brand=ZTE
+ro.product.name=B760H
+ro.product.device=B760H
+ro.build.product=B760H
 ro.build.description=ztemt85_bx_kk-user 4.4.2 KOT49H eng.stb-android.20170607.181315 release-keys
 ro.build.fingerprint=Mebox/ztemt85_bx_kk/ztemt85_bx_kk:4.4.2/KOT49H/20170607.181315:user/release-keys
 ro.bootimage.build.fingerprint=Mebox/ztemt85_bx_kk/ztemt85_bx_kk:4.4.2/KOT49H/20170607.181315:user/release-keys
