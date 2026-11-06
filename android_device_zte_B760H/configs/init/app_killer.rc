@@ -1,0 +1,4 @@
+service app_killer /system/bin/app_killer_daemon
+    class main
+    user root
+    group root system log

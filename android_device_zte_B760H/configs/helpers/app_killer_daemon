@@ -1,0 +1,88 @@
+#!/system/bin/sh
+# Auto-Close Background App Daemon for ZTE B760H (1GB RAM)
+# Monitors ActivityManager focus events (am_focused_activity).
+# When the user opens any app and then returns to the Home screen (com.mqltv/.MainActivity),
+# automatically closes the previous app(s) to free RAM and hardware video decoders.
+
+is_whitelisted() {
+    case "$1" in
+        com.mqltv|\
+        android|\
+        com.android.systemui|\
+        com.android.inputdevices|\
+        com.android.bluetooth|\
+        com.android.shell|\
+        com.android.defcontainer|\
+        com.android.keychain|\
+        com.android.packageinstaller|\
+        com.android.certinstaller|\
+        com.android.vpndialogs|\
+        com.android.proxyhandler|\
+        com.android.statementservice|\
+        com.android.location.fused|\
+        com.android.providers.*|\
+        com.google.android.pano.packageinstaller|\
+        com.google.android.leanback.ime|\
+        com.google.android.tv.remote.service|\
+        com.google.android.gms|\
+        com.google.android.atv.widget|\
+        com.google.android.leanbacklauncher*|\
+        org.cyanogenmod.*|\
+        cyanogenmod.platform)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+# Wait until boot is completed before enforcing auto-close
+while [ "$(getprop sys.boot_completed)" != "1" ]; do
+    sleep 2
+done
+
+# Stop background push daemons from heavy streaming apps at boot
+for bgpkg in com.tencent.qqlivei18n com.vidio.android.tv; do
+    pkill -9 -f "^${bgpkg}" >/dev/null 2>&1
+    am force-stop "$bgpkg" >/dev/null 2>&1 &
+done
+
+tracked_pkgs=""
+
+logcat -b events -T 1 | while read -r line; do
+    case "$line" in
+        *"am_focused_activity:"*)
+            # Format: I am_focused_activity: [0,com.package.name/.ActivityName,reason]
+            comp="${line#*\[*,}"
+            comp="${comp%%,*}"
+            pkg="${comp%%/*}"
+            act="${comp#*/}"
+
+            [ -z "$pkg" ] && continue
+
+            if [ "$pkg" = "com.mqltv" ] && { [ "$act" = ".MainActivity" ] || [ "$act" = "com.mqltv.MainActivity" ]; }; then
+                if [ -n "$tracked_pkgs" ]; then
+                    for p in $tracked_pkgs; do
+                        # Instant kill to immediately release RAM and hardware OMX codecs
+                        pids=$(pidof "$p" 2>/dev/null)
+                        [ -n "$pids" ] && kill -9 $pids >/dev/null 2>&1
+                        pkill -9 -f "^${p}:" >/dev/null 2>&1
+                        # Clean up ActivityManager task/service state in background
+                        am force-stop "$p" >/dev/null 2>&1 &
+                        log -t AppKillerDaemon "Closed background app on Home return: $p"
+                    done
+                    tracked_pkgs=""
+                    echo 1 > /proc/sys/vm/drop_caches 2>/dev/null
+                fi
+            else
+                if ! is_whitelisted "$pkg"; then
+                    case " $tracked_pkgs " in
+                        *" $pkg "*) ;;
+                        *) tracked_pkgs="$tracked_pkgs $pkg" ;;
+                    esac
+                fi
+            fi
+            ;;
+    esac
+done
