@@ -214,6 +214,7 @@ public class BluetoothPairingDialog extends DialogActivity {
             dismiss();
         } else if (KEY_CANCEL.equals(key)) {
             cancelPairing();
+            dismiss();
         }
     }
 
@@ -294,6 +295,7 @@ public class BluetoothPairingDialog extends DialogActivity {
                     return;
                 }
                 mDevice.setPin(pinBytes);
+                mPairingInProgress = true;
                 break;
 
             case BluetoothDevice.PAIRING_VARIANT_PASSKEY:
