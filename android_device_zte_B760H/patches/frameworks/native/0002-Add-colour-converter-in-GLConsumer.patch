@@ -704,7 +704,7 @@ diff --git a/libs/gui/GLConsumer.cpp b/libs/gui/GLConsumer.cpp
 index 10e999c..2032ff7 100644
 --- a/libs/gui/GLConsumer.cpp
 +++ b/libs/gui/GLConsumer.cpp
-@@ -42,6 +42,18 @@
+@@ -42,6 +42,21 @@
  #include <utils/String8.h>
  #include <utils/Trace.h>
  
@@ -718,16 +718,24 @@ index 10e999c..2032ff7 100644
 +#ifndef HAL_PIXEL_FORMAT_NV12_BLK
 +#define HAL_PIXEL_FORMAT_NV12_BLK 0x101
 +#endif
++#ifndef HAL_PIXEL_FORMAT_YV12
++#define HAL_PIXEL_FORMAT_YV12 0x32315659
++#endif
 +#endif
 +
  EGLAPI const char* eglQueryStringImplementationANDROID(EGLDisplay dpy, EGLint name);
  #define CROP_EXT_STR "EGL_ANDROID_image_crop"
  #define PROT_CONTENT_EXT_STR "EGL_EXT_protected_content"
-@@ -56,6 +68,92 @@ namespace android {
+@@ -56,6 +71,97 @@ namespace android {
  #define GLC_LOGW(x, ...) ALOGW("[%s] " x, mName.string(), ##__VA_ARGS__)
  #define GLC_LOGE(x, ...) ALOGE("[%s] " x, mName.string(), ##__VA_ARGS__)
  
 +#ifdef MTK_HARDWARE
++static bool isAuxConvertedFormat(int format) {
++    return format == HAL_PIXEL_FORMAT_NV12_BLK ||
++            format == HAL_PIXEL_FORMAT_YV12;
++}
++
 +// Private ABI view of gralloc's optional "extra" device. Keep this local to
 +// GLConsumer rather than adding getIonFd() to GraphicBuffer/GraphicBufferMapper.
 +// The field order must match the vendor gralloc_extra.h ABI on this target.
@@ -816,7 +824,7 @@ index 10e999c..2032ff7 100644
  static const struct {
      uint32_t width, height;
      char const* bits;
-@@ -170,6 +268,12 @@ GLConsumer::GLConsumer(const sp<IGraphicBufferConsumer>& bq, uint32_t tex,
+@@ -170,6 +276,12 @@ GLConsumer::GLConsumer(const sp<IGraphicBufferConsumer>& bq, uint32_t tex,
      mAttached(true)
  {
      GLC_LOGV("GLConsumer");
@@ -829,7 +837,7 @@ index 10e999c..2032ff7 100644
  
      memcpy(mCurrentTransformMatrix, mtxIdentity,
              sizeof(mCurrentTransformMatrix));
-@@ -198,6 +302,12 @@ GLConsumer::GLConsumer(const sp<IGraphicBufferConsumer>& bq, uint32_t texTarget,
+@@ -198,6 +310,12 @@ GLConsumer::GLConsumer(const sp<IGraphicBufferConsumer>& bq, uint32_t texTarget,
      mAttached(false)
  {
      GLC_LOGV("GLConsumer");
@@ -842,7 +850,7 @@ index 10e999c..2032ff7 100644
  
      memcpy(mCurrentTransformMatrix, mtxIdentity,
              sizeof(mCurrentTransformMatrix));
-@@ -205,6 +315,15 @@ GLConsumer::GLConsumer(const sp<IGraphicBufferConsumer>& bq, uint32_t texTarget,
+@@ -205,6 +323,15 @@ GLConsumer::GLConsumer(const sp<IGraphicBufferConsumer>& bq, uint32_t texTarget,
      mConsumer->setConsumerUsageBits(DEFAULT_USAGE_FLAGS);
  }
  
@@ -858,7 +866,7 @@ index 10e999c..2032ff7 100644
  status_t GLConsumer::setDefaultBufferSize(uint32_t w, uint32_t h)
  {
      Mutex::Autolock lock(mMutex);
-@@ -420,18 +539,40 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferItem& item,
+@@ -420,18 +547,40 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferItem& item,
          return err;
      }
  
@@ -895,7 +903,7 @@ index 10e999c..2032ff7 100644
 +#ifdef MTK_HARDWARE
 +    const sp<GraphicBuffer>& acquiredBuffer = mSlots[slot].mGraphicBuffer;
 +    if (acquiredBuffer != NULL &&
-+            acquiredBuffer->getPixelFormat() == HAL_PIXEL_FORMAT_NV12_BLK) {
++            isAuxConvertedFormat(acquiredBuffer->getPixelFormat())) {
 +        needsEglImage = false;
 +    }
 +#endif
@@ -911,7 +919,7 @@ index 10e999c..2032ff7 100644
      }
  
      // Do whatever sync ops we need to do before releasing the old slot.
-@@ -461,8 +602,23 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferItem& item,
+@@ -461,8 +610,23 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferItem& item,
      // release old buffer
      if (mCurrentTexture != BufferQueue::INVALID_BUFFER_SLOT) {
          if (pendingRelease == nullptr) {
@@ -936,7 +944,7 @@ index 10e999c..2032ff7 100644
                      mEglDisplay, mEglSlots[mCurrentTexture].mEglFence);
              if (status < NO_ERROR) {
                  GLC_LOGE("updateAndRelease: failed to release buffer: %s (%d)",
-@@ -471,9 +627,23 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferItem& item,
+@@ -471,9 +635,23 @@ status_t GLConsumer::updateAndReleaseLocked(const BufferItem& item,
                  // keep going, with error raised [?]
              }
          } else {
@@ -962,7 +970,7 @@ index 10e999c..2032ff7 100644
              pendingRelease->display = mEglDisplay;
              pendingRelease->fence = mEglSlots[mCurrentTexture].mEglFence;
              pendingRelease->isPending = true;
-@@ -513,6 +683,36 @@ status_t GLConsumer::bindTextureImageLocked() {
+@@ -513,6 +691,36 @@ status_t GLConsumer::bindTextureImageLocked() {
          return NO_INIT;
      }
  
@@ -977,7 +985,7 @@ index 10e999c..2032ff7 100644
 +#ifdef MTK_HARDWARE
 +    const sp<GraphicBuffer> currentBuffer = mCurrentTextureImage->graphicBuffer();
 +    if (currentBuffer != NULL &&
-+            currentBuffer->getPixelFormat() == HAL_PIXEL_FORMAT_NV12_BLK) {
++            isAuxConvertedFormat(currentBuffer->getPixelFormat())) {
 +        return bindAuxTextureImageLocked(currentBuffer);
 +    }
 +
@@ -999,7 +1007,7 @@ index 10e999c..2032ff7 100644
      status_t err = mCurrentTextureImage->createIfNeeded(mEglDisplay,
                                                          mCurrentCrop);
      if (err != NO_ERROR) {
-@@ -543,10 +743,340 @@ status_t GLConsumer::bindTextureImageLocked() {
+@@ -543,10 +751,372 @@ status_t GLConsumer::bindTextureImageLocked() {
          }
      }
  
@@ -1045,7 +1053,7 @@ index 10e999c..2032ff7 100644
 +}
 +
 +status_t GLConsumer::fenceCurrentAuxTextureLocked() {
-+    if (!mCurrentTextureIsAux || mCurrentAuxSlot < 0 || mCurrentAuxSlot >= 2) {
++    if (!mCurrentTextureIsAux || mCurrentAuxSlot < 0 || mCurrentAuxSlot >= 3) {
 +        return NO_ERROR;
 +    }
 +    if (mEglDisplay == EGL_NO_DISPLAY) {
@@ -1101,7 +1109,7 @@ index 10e999c..2032ff7 100644
 +        const sp<GraphicBuffer>& src, size_t slotIndex) {
 +    ATRACE_CALL();
 +    if (src == NULL || slotIndex >= 3 ||
-+            src->getPixelFormat() != HAL_PIXEL_FORMAT_NV12_BLK) {
++            !isAuxConvertedFormat(src->getPixelFormat())) {
 +        return BAD_VALUE;
 +    }
 +    if (src->getUsage() & GRALLOC_USAGE_PROTECTED) {
@@ -1188,35 +1196,67 @@ index 10e999c..2032ff7 100644
 +    }
 +    const int dstFd = dst.ionFd;
 +
-+    const uint32_t srcStrideU = width; // MTK NV12_BLK uses the aligned width.
-+    const int32_t srcStride = static_cast<int32_t>(srcStrideU);
-+    const uint64_t lumaBytes64 = static_cast<uint64_t>(srcStrideU) * height;
-+    if (lumaBytes64 == 0 || lumaBytes64 > UINT_MAX) {
-+        return BAD_VALUE;
-+    }
-+    const uint32_t lumaBytes = static_cast<uint32_t>(lumaBytes64);
-+    const uint32_t chromaBytes = lumaBytes / 2;
-+    uint32_t srcSizes[2] = { lumaBytes, chromaBytes };
-+
++    const int pixelFormat = src->getPixelFormat();
 +    if (mBlit == NULL) {
 +        mBlit = new DpBlitStream();
 +    }
 +    DpBlitStream& blit = *mBlit;
-+    DP_STATUS_ENUM dpStatus = blit.setSrcBuffer(srcFd, srcSizes, 2);
-+    if (dpStatus != DP_STATUS_RETURN_SUCCESS) {
-+        GLC_LOGE("convertToAuxSlotLocked: setSrcBuffer(FD) failed: %d", dpStatus);
-+        return UNKNOWN_ERROR;
-+    }
-+
 +    DpRect srcRoi;
 +    srcRoi.x = 0;
 +    srcRoi.y = 0;
 +    srcRoi.w = widthI;
 +    srcRoi.h = heightI;
-+    // Match the extended block-format config used by MTK ColorConverter.
-+    dpStatus = blit.setSrcConfig(srcStride, heightI, srcStride * 32,
-+            srcStride * 16, eNV12_BLK, DP_PROFILE_BT601,
-+            eInterlace_None, &srcRoi, DP_SECURE_NONE, 1);
++
++    DP_STATUS_ENUM dpStatus;
++    if (pixelFormat == HAL_PIXEL_FORMAT_YV12) {
++        const uint32_t rawStride = static_cast<uint32_t>(src->getStride());
++        const uint32_t yStrideU = rawStride >= width
++                ? rawStride : ((width + 15U) & ~15U);
++        if (yStrideU > static_cast<uint32_t>(INT_MAX)) {
++            return BAD_VALUE;
++        }
++        const uint32_t uvStrideU = ((yStrideU >> 1) + 15U) & ~15U;
++        const uint32_t chromaHeight = (height + 1U) / 2U;
++        const uint64_t yBytes64 = static_cast<uint64_t>(yStrideU) * height;
++        const uint64_t cBytes64 = static_cast<uint64_t>(uvStrideU) * chromaHeight;
++        if (yBytes64 == 0 || yBytes64 > UINT_MAX ||
++                cBytes64 == 0 || cBytes64 > UINT_MAX) {
++            return BAD_VALUE;
++        }
++        uint32_t srcSizes[3] = {
++            static_cast<uint32_t>(yBytes64),
++            static_cast<uint32_t>(cBytes64),
++            static_cast<uint32_t>(cBytes64)
++        };
++        dpStatus = blit.setSrcBuffer(srcFd, srcSizes, 3);
++        if (dpStatus != DP_STATUS_RETURN_SUCCESS) {
++            GLC_LOGE("convertToAuxSlotLocked: YV12 setSrcBuffer(FD) failed: %d", dpStatus);
++            return UNKNOWN_ERROR;
++        }
++        dpStatus = blit.setSrcConfig(widthI, heightI,
++                static_cast<int32_t>(yStrideU), static_cast<int32_t>(uvStrideU),
++                eYV12, DP_PROFILE_BT601, eInterlace_None, &srcRoi,
++                DP_SECURE_NONE, 1);
++    } else {
++        const uint32_t srcStrideU = width; // MTK NV12_BLK uses the aligned width.
++        const int32_t srcStride = static_cast<int32_t>(srcStrideU);
++        const uint64_t lumaBytes64 = static_cast<uint64_t>(srcStrideU) * height;
++        if (lumaBytes64 == 0 || lumaBytes64 > UINT_MAX) {
++            return BAD_VALUE;
++        }
++        const uint32_t lumaBytes = static_cast<uint32_t>(lumaBytes64);
++        const uint32_t chromaBytes = lumaBytes / 2;
++        uint32_t srcSizes[2] = { lumaBytes, chromaBytes };
++        dpStatus = blit.setSrcBuffer(srcFd, srcSizes, 2);
++        if (dpStatus != DP_STATUS_RETURN_SUCCESS) {
++            GLC_LOGE("convertToAuxSlotLocked: setSrcBuffer(FD) failed: %d", dpStatus);
++            return UNKNOWN_ERROR;
++        }
++        // Match the extended block-format config used by MTK ColorConverter.
++        dpStatus = blit.setSrcConfig(srcStride, heightI, srcStride * 32,
++                srcStride * 16, eNV12_BLK, DP_PROFILE_BT601,
++                eInterlace_None, &srcRoi, DP_SECURE_NONE, 1);
++    }
 +    if (dpStatus != DP_STATUS_RETURN_SUCCESS) {
 +        GLC_LOGE("convertToAuxSlotLocked: setSrcConfig failed: %d", dpStatus);
 +        return UNKNOWN_ERROR;
@@ -1340,7 +1380,7 @@ index 10e999c..2032ff7 100644
  status_t GLConsumer::checkAndUpdateEglStateLocked(bool contextCheck) {
      EGLDisplay dpy = eglGetCurrentDisplay();
      EGLContext ctx = eglGetCurrentContext();
-@@ -624,6 +1154,19 @@ status_t GLConsumer::detachFromContext() {
+@@ -624,6 +1194,19 @@ status_t GLConsumer::detachFromContext() {
              return err;
          }
  
@@ -1360,7 +1400,7 @@ index 10e999c..2032ff7 100644
          glDeleteTextures(1, &mTexName);
      }
  
-@@ -708,8 +1251,22 @@ status_t GLConsumer::syncForReleaseLocked(EGLDisplay dpy) {
+@@ -708,8 +1291,22 @@ status_t GLConsumer::syncForReleaseLocked(EGLDisplay dpy) {
                  return UNKNOWN_ERROR;
              }
              sp<Fence> fence(new Fence(fenceFd));
@@ -1385,7 +1425,7 @@ index 10e999c..2032ff7 100644
              if (err != OK) {
                  GLC_LOGE("syncForReleaseLocked: error adding release fence: "
                          "%s (%d)", strerror(-err), err);
-@@ -748,6 +1305,16 @@ status_t GLConsumer::syncForReleaseLocked(EGLDisplay dpy) {
+@@ -748,6 +1345,16 @@ status_t GLConsumer::syncForReleaseLocked(EGLDisplay dpy) {
          }
      }
  
@@ -1402,7 +1442,7 @@ index 10e999c..2032ff7 100644
      return OK;
  }
  
-@@ -805,8 +1372,17 @@ void GLConsumer::computeCurrentTransformMatrixLocked() {
+@@ -805,8 +1412,17 @@ void GLConsumer::computeCurrentTransformMatrixLocked() {
          GLC_LOGD("computeCurrentTransformMatrixLocked: "
                  "mCurrentTextureImage is NULL");
      }
@@ -1411,7 +1451,7 @@ index 10e999c..2032ff7 100644
 +    // the transform matrix for those buffers.
 +    bool cropInImage = isEglImageCroppable(mCurrentCrop);
 +#ifdef MTK_HARDWARE
-+    if (buf != nullptr && buf->getPixelFormat() == HAL_PIXEL_FORMAT_NV12_BLK) {
++    if (buf != nullptr && isAuxConvertedFormat(buf->getPixelFormat())) {
 +        cropInImage = false;
 +    }
 +#endif
@@ -1421,19 +1461,20 @@ index 10e999c..2032ff7 100644
          mCurrentTransform, mFilteringEnabled);
  }
  
-@@ -859,6 +1435,11 @@ void GLConsumer::computeTransformMatrix(float outTransform[16],
+@@ -859,6 +1475,12 @@ void GLConsumer::computeTransformMatrix(float outTransform[16],
                  case PIXEL_FORMAT_RGB_888:
                  case PIXEL_FORMAT_RGB_565:
                  case PIXEL_FORMAT_BGRA_8888:
 +#ifdef MTK_HARDWARE
-+                // NV12_BLK is converted to RGBA before sampling, so filtering
-+                // uses the RGB sampling margin rather than a subsampled-YUV one.
++                // NV12_BLK/YV12 are converted to RGBA before sampling, so
++                // filtering uses the RGB margin rather than a subsampled one.
 +                case HAL_PIXEL_FORMAT_NV12_BLK:
++                case HAL_PIXEL_FORMAT_YV12:
 +#endif
                      // We know there's no subsampling of any channels, so we
                      // only need to shrink by a half a pixel.
                      shrinkAmount = 0.5;
-@@ -1057,6 +1638,34 @@ void GLConsumer::freeBufferLocked(int slotIndex) {
+@@ -1057,6 +1679,34 @@ void GLConsumer::freeBufferLocked(int slotIndex) {
  
  void GLConsumer::abandonLocked() {
      GLC_LOGV("abandonLocked");

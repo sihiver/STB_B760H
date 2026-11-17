@@ -161,7 +161,11 @@ PRODUCT_PACKAGES += \
     LeanKeyboard \
     DocumentsUI \
     WebViewGoogle \
-    Overscan
+    Overscan \
+    MqlTV \
+    YouTubeTV \
+    GmsStub \
+    FileManagerPlus
 
 PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/configs/init/keyboard.rc:system/etc/init/keyboard.rc

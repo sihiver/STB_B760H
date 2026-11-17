@@ -15,7 +15,7 @@ on:
           - otapackage
           - systemimage
           - bootimage
-          - libstagefright libstagefright_omx libsurfaceflinger libgui
+          - libmedia libstagefright libstagefright_omx libsurfaceflinger libgui libandroid_runtime
       sync_depth:
         description: 'Repo sync depth (1 to save disk space)'
         required: true
@@ -216,10 +216,12 @@ jobs:
           cp ~/android/aosp/out/target/product/*/boot.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/out/target/product/*/system.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/out/target/product/*/recovery.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/out/target/product/*/system/lib/libmedia.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/out/target/product/*/system/lib/libstagefright.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/out/target/product/*/system/lib/libstagefright_omx.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/out/target/product/*/system/lib/libsurfaceflinger.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/out/target/product/*/system/lib/libgui.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/out/target/product/*/system/lib/libandroid_runtime.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/build.log "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           echo "Collected artifacts in $GITHUB_WORKSPACE/output:"
           ls -lh "$GITHUB_WORKSPACE/output"
