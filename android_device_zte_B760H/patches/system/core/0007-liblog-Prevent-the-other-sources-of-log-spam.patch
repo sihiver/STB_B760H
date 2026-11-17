@@ -1,9 +1,8 @@
-From 99d0dd64bc0e96e41b304190a838296116e7603b Mon Sep 17 00:00:00 2001
-From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
-Date: Sat, 19 Sep 2026 15:06:02 +0700
-Subject: [PATCH] liblog: Prevent the other sources of log spam
+From 89e0e964f3553debdf663eb2a2d11fe57c74e8d7 Mon Sep 17 00:00:00 2001
+From: Dindin Suryadi <din2.suryadi@gmail.com>
+Date: Tue, 17 Nov 2026 23:47:29 +0700
+Subject: [PATCH 7/7] liblog: Prevent the other sources of log spam
 
-Change-Id: I4beeb5bd6e2e4d1ce40190f6612583fd0cee08ce
 ---
  liblog/logger_write.c | 13 +++++++++++++
  1 file changed, 13 insertions(+)
@@ -33,5 +32,5 @@ index 22c01d3..89d9677 100644
      if ((bufID != LOG_ID_RADIO) &&
           (!strcmp(tag, "HTC_RIL") ||
 -- 
-2.43.0
+2.53.0
 
