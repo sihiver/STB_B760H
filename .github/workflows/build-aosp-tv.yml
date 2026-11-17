@@ -51,12 +51,20 @@ jobs:
       - name: Set up Swap Space (8 GB)
         run: |
           sudo swapoff -a || true
-          sudo rm -f /swapfile
-          sudo fallocate -l 8G /swapfile || sudo dd if=/dev/zero of=/swapfile bs=1M count=8192
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          sudo rm -f /swapfile /mnt/swapfile
+          # Prefer the runner's temporary /mnt disk so the 8 GB swap does not eat the root disk needed by out/
+          SWAPFILE=/swapfile
+          MNT_FREE_KB=$(df --output=avail /mnt 2>/dev/null | tail -n 1 | tr -d ' ')
+          if [ -n "$MNT_FREE_KB" ] && [ "$MNT_FREE_KB" -gt 10485760 ]; then
+            SWAPFILE=/mnt/swapfile
+          fi
+          echo "Using swap file: $SWAPFILE"
+          sudo fallocate -l 8G $SWAPFILE || sudo dd if=/dev/zero of=$SWAPFILE bs=1M count=8192
+          sudo chmod 600 $SWAPFILE
+          sudo mkswap $SWAPFILE
+          sudo swapon $SWAPFILE
           free -h
+          df -h / /mnt
 
       - name: Set up Java 8 (Zulu)
         uses: actions/setup-java@v4
