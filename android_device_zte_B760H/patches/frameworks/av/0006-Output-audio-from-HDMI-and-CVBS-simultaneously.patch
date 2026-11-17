@@ -1,7 +1,7 @@
-From 6623eb493b478893231a0ff1e1c3480832747fc1 Mon Sep 17 00:00:00 2001
+From 0699074a21a1d0ae12f872080ada331960837336 Mon Sep 17 00:00:00 2001
 From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
 Date: Fri, 2 Oct 2026 19:46:18 +0700
-Subject: [PATCH 6/6] Output audio from HDMI and CVBS simultaneously
+Subject: [PATCH 6/8] Output audio from HDMI and CVBS simultaneously
 
 Change-Id: Ie2d5b78fbbfe1c769dfcc1f1902f1649cb60ceb0
 ---
@@ -10,10 +10,10 @@ Change-Id: Ie2d5b78fbbfe1c769dfcc1f1902f1649cb60ceb0
  2 files changed, 13 insertions(+)
 
 diff --git a/services/audiopolicy/enginedefault/src/Engine.cpp b/services/audiopolicy/enginedefault/src/Engine.cpp
-index 6db66b0..b6d1bb6 100755
+index d31429c..3e54609 100644
 --- a/services/audiopolicy/enginedefault/src/Engine.cpp
 +++ b/services/audiopolicy/enginedefault/src/Engine.cpp
-@@ -546,6 +546,12 @@ audio_devices_t Engine::getDeviceForStrategyInt(routing_strategy strategy,
+@@ -522,6 +522,12 @@ audio_devices_t Engine::getDeviceForStrategyInt(routing_strategy strategy,
          // STRATEGY_ENFORCED_AUDIBLE, AUDIO_DEVICE_NONE otherwise
          device |= device2;
  
@@ -27,10 +27,10 @@ index 6db66b0..b6d1bb6 100755
          if ((strategy == STRATEGY_MEDIA) &&
              (mForceUse[AUDIO_POLICY_FORCE_FOR_HDMI_SYSTEM_AUDIO] ==
 diff --git a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
-index dde445d..4fda083 100644
+index d265f11..71783a0 100644
 --- a/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
 +++ b/services/audiopolicy/managerdefault/AudioPolicyManager.cpp
-@@ -3514,6 +3514,13 @@ AudioPolicyManager::AudioPolicyManager(AudioPolicyClientInterface *clientInterfa
+@@ -3425,6 +3425,13 @@ AudioPolicyManager::AudioPolicyManager(AudioPolicyClientInterface *clientInterfa
  
      updateDevicesAndOutputs();
  
@@ -45,5 +45,5 @@ index dde445d..4fda083 100644
      if (mPrimaryOutput != 0) {
          AudioParameter outputCmd = AudioParameter();
 -- 
-2.43.0
+2.53.0
 

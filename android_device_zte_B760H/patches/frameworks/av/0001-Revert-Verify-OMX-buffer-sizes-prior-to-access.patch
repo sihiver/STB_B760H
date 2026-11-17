@@ -1,18 +1,14 @@
-From f6d66ef44115b07d619f4934671d211eb9bfcfbf Mon Sep 17 00:00:00 2001
-From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
-Date: Mon, 21 Sep 2026 20:24:39 +0700
-Subject: [PATCH 1/6] Revert "Verify OMX buffer sizes prior to access"
+From b11a1cdf42144b17bf74814570f2994c833cb476 Mon Sep 17 00:00:00 2001
+From: Dindin Suryadi <din2.suryadi@gmail.com>
+Date: Tue, 17 Nov 2026 20:59:05 +0700
+Subject: [PATCH 1/8] Revert "Verify OMX buffer sizes prior to access"
 
-Commit 2720c8b094cfa58de314daa8e5e4fb4fa81fe3b2, for reference.
-The KK-era decoder doesn't like this change.
-
-Change-Id: If53396544889049a637689980c44fc1b6d9c3637
 ---
- media/libmedia/IOMX.cpp | 105 ++++++++++++----------------------------
- 1 file changed, 31 insertions(+), 74 deletions(-)
+ media/libmedia/IOMX.cpp | 104 ++++++++++++----------------------------
+ 1 file changed, 30 insertions(+), 74 deletions(-)
 
 diff --git a/media/libmedia/IOMX.cpp b/media/libmedia/IOMX.cpp
-index 9474e30..ceb2454 100644
+index 1090a83..d251731 100644
 --- a/media/libmedia/IOMX.cpp
 +++ b/media/libmedia/IOMX.cpp
 @@ -18,8 +18,6 @@
@@ -24,7 +20,7 @@ index 9474e30..ceb2454 100644
  #include <binder/IMemory.h>
  #include <binder/Parcel.h>
  #include <media/IOMX.h>
-@@ -739,78 +737,39 @@ status_t BnOMX::onTransact(
+@@ -737,78 +735,38 @@ status_t BnOMX::onTransact(
  
              size_t size = data.readInt64();
  
@@ -81,7 +77,6 @@ index 9474e30..ceb2454 100644
 -                                        err = getParameter(node, index, params, size);
 -                                        break;
 -                                    case SET_PARAMETER:
--                                        AVMediaUtils::get()->readCustomParamData(index, params, size, &data);
 -                                        err = setParameter(node, index, params, size);
 -                                        break;
 -                                    case GET_CONFIG:
@@ -98,16 +93,16 @@ index 9474e30..ceb2454 100644
 -                                        err = setInternalOption(node, index, type, params, size);
 -                                        break;
 -                                    }
+-
 -                                    default:
 -                                        TRESPASS();
--                            }
+-                                }
 -                            }
 +                    switch (code) {
 +                        case GET_PARAMETER:
 +                            err = getParameter(node, index, params, size);
 +                            break;
 +                        case SET_PARAMETER:
-+                            AVMediaUtils::get()->readCustomParamData(index, params, size, &data);
 +                            err = setParameter(node, index, params, size);
 +                            break;
 +                        case GET_CONFIG:
@@ -133,7 +128,7 @@ index 9474e30..ceb2454 100644
                  }
              }
  
-@@ -820,9 +779,7 @@ status_t BnOMX::onTransact(
+@@ -818,9 +776,7 @@ status_t BnOMX::onTransact(
                  reply->write(params, size);
              }
  
@@ -145,5 +140,5 @@ index 9474e30..ceb2454 100644
  
              return NO_ERROR;
 -- 
-2.43.0
+2.53.0
 

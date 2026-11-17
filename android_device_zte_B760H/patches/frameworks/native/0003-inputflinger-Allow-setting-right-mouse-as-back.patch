@@ -1,7 +1,7 @@
-From f15586f305c3dfdc54869aae85d0466724cbf9ff Mon Sep 17 00:00:00 2001
+From d3565e078d71ec5f1cd4f9d5ffe39f5165c36b5d Mon Sep 17 00:00:00 2001
 From: electrikjesus <electrikjesus@gmail.com>
 Date: Tue, 20 Oct 2026 13:34:19 +0700
-Subject: [PATCH] inputflinger: Allow setting right mouse as back
+Subject: [PATCH 3/3] inputflinger: Allow setting right mouse as back
 
 Allows overriding AMOTION_EVENT_BUTTON_SECONDARY with AMOTION_EVENT_BUTTON_BACK, using a property trigger.
 
@@ -11,7 +11,7 @@ Change-Id: I154fbbd9d7c60723171922c80ae87a434f12ad8b
  1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/services/inputflinger/InputReader.cpp b/services/inputflinger/InputReader.cpp
-index 7f8457e..365e3a4 100644
+index b9be675..92130f9 100644
 --- a/services/inputflinger/InputReader.cpp
 +++ b/services/inputflinger/InputReader.cpp
 @@ -45,6 +45,7 @@
@@ -22,7 +22,7 @@ index 7f8457e..365e3a4 100644
  #include <input/Keyboard.h>
  #include <input/VirtualKeyMap.h>
  
-@@ -1295,7 +1296,13 @@ uint32_t CursorButtonAccumulator::getButtonState() const {
+@@ -1285,7 +1286,13 @@ uint32_t CursorButtonAccumulator::getButtonState() const {
          result |= AMOTION_EVENT_BUTTON_PRIMARY;
      }
      if (mBtnRight) {
@@ -38,5 +38,5 @@ index 7f8457e..365e3a4 100644
      if (mBtnMiddle) {
          result |= AMOTION_EVENT_BUTTON_TERTIARY;
 -- 
-2.43.0
+2.53.0
 

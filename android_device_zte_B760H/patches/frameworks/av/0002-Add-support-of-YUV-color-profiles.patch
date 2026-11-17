@@ -1,38 +1,35 @@
-From f084a256a44693a34161728364ff7ccecaf32328 Mon Sep 17 00:00:00 2001
-From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
-Date: Tue, 22 Sep 2026 12:48:18 +0700
-Subject: [PATCH 2/6] Add support of YUV color profiles
+From 731eba54b621eaba92f460024e5da66752284640 Mon Sep 17 00:00:00 2001
+From: Dindin Suryadi <din2.suryadi@gmail.com>
+Date: Tue, 17 Nov 2026 20:59:05 +0700
+Subject: [PATCH 2/8] Add support of YUV color profiles
 
-Just enough to satisfy the gralloc.
-
-Change-Id: I3da62be1b31f1f27effc5a082197af902aa7a555
 ---
  include/media/stagefright/ACodec.h |  3 +++
- media/libstagefright/ACodec.cpp    | 38 ++++++++++++++++++++++++++++++
+ media/libstagefright/ACodec.cpp    | 40 ++++++++++++++++++++++++++++++
  media/libstagefright/Android.mk    |  5 ++++
- 3 files changed, 46 insertions(+)
+ 3 files changed, 48 insertions(+)
 
 diff --git a/include/media/stagefright/ACodec.h b/include/media/stagefright/ACodec.h
-index d682632..10a3905 100644
+index 25f7173..1b22cf7 100644
 --- a/include/media/stagefright/ACodec.h
 +++ b/include/media/stagefright/ACodec.h
-@@ -350,6 +350,9 @@ protected:
+@@ -324,6 +324,9 @@ private:
+     status_t submitOutputMetadataBuffer();
+     void signalSubmitOutputMetadataBufferIfEOS_workaround();
      status_t allocateOutputBuffersFromNativeWindow();
- #ifdef USE_SAMSUNG_COLORFORMAT
-     void setNativeWindowColorFormat(OMX_COLOR_FORMATTYPE &eNativeColorFormat);
-+#endif
 +#ifdef MTK_HARDWARE
 +    void setHalWindowColorFormat(OMX_COLOR_FORMATTYPE &eHalColorFormat);
- #endif
++#endif
      status_t cancelBufferToNativeWindow(BufferInfo *info);
      status_t freeOutputBuffersNotOwnedByComponent();
+     BufferInfo *dequeueBufferFromNativeWindow();
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index a11494d..fca548b 100644
+index 37fd5a5..28d5d8d 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
-@@ -85,6 +85,14 @@
- 
- #include <stagefright/AVExtensions.h>
+@@ -55,6 +55,14 @@
+ #include "include/DataConverter.h"
+ #include "omx/OMXUtils.h"
  
 +#ifdef MTK_HARDWARE
 +#define HAL_PIXEL_FORMAT_I420 0x100
@@ -45,9 +42,9 @@ index a11494d..fca548b 100644
  namespace android {
  
  enum {
-@@ -1036,6 +1044,11 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
-     setNativeWindowColorFormat(eNativeColorFormat);
- #endif
+@@ -983,12 +991,21 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
+     memset(&mLastNativeWindowCrop, 0, sizeof(mLastNativeWindowCrop));
+     mLastNativeWindowDataSpace = HAL_DATASPACE_UNKNOWN;
  
 +#ifdef MTK_HARDWARE
 +    OMX_COLOR_FORMATTYPE eHalColorFormat = def.format.video.eColorFormat;
@@ -55,20 +52,21 @@ index a11494d..fca548b 100644
 +#endif
 +
      ALOGV("gralloc usage: %#x(OMX) => %#x(ACodec)", omxUsage, usage);
-     err = setNativeWindowSizeFormatAndUsage(
+     return setNativeWindowSizeFormatAndUsage(
              nativeWindow,
-@@ -1043,6 +1056,8 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
+             def.format.video.nFrameWidth,
              def.format.video.nFrameHeight,
- #ifdef USE_SAMSUNG_COLORFORMAT
-             eNativeColorFormat,
-+#elif defined(MTK_HARDWARE)
++#ifdef MTK_HARDWARE
 +            eHalColorFormat,
- #else
++#else
              def.format.video.eColorFormat,
- #endif
-@@ -1433,6 +1448,29 @@ void ACodec::setNativeWindowColorFormat(OMX_COLOR_FORMATTYPE &eNativeColorFormat
++#endif
+             mRotationDegrees,
+             usage,
+             reconnect);
+@@ -1326,6 +1343,29 @@ void ACodec::dumpBuffers(OMX_U32 portIndex) {
+     }
  }
- #endif
  
 +#ifdef MTK_HARDWARE
 +void ACodec::setHalWindowColorFormat(OMX_COLOR_FORMATTYPE &eHalColorFormat) {
@@ -97,12 +95,12 @@ index a11494d..fca548b 100644
      CHECK_EQ((int)info->mStatus, (int)BufferInfo::OWNED_BY_US);
  
 diff --git a/media/libstagefright/Android.mk b/media/libstagefright/Android.mk
-index e708f68..e0ee93c 100644
+index 3848502..0789cfc 100644
 --- a/media/libstagefright/Android.mk
 +++ b/media/libstagefright/Android.mk
-@@ -202,6 +202,11 @@ LOCAL_C_INCLUDES += \
- 	$(TOP)/hardware/samsung/exynos4/include
- endif
+@@ -134,6 +134,11 @@ endif
+ LOCAL_CLANG := true
+ LOCAL_SANITIZE := unsigned-integer-overflow signed-integer-overflow
  
 +# Mediatek
 +ifeq ($(strip $(BOARD_USES_MTK_HARDWARE)),true)
@@ -113,5 +111,5 @@ index e708f68..e0ee93c 100644
  
  LOCAL_MODULE_TAGS := optional
 -- 
-2.43.0
+2.53.0
 

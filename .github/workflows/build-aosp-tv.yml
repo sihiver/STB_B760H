@@ -12,6 +12,7 @@ on:
           - otapackage
           - systemimage
           - bootimage
+          - libstagefright libstagefright_omx libsurfaceflinger libgui
       sync_depth:
         description: 'Repo sync depth (1 to save disk space)'
         required: true
@@ -38,6 +39,7 @@ jobs:
           sudo rm -rf /usr/local/share/boost
           sudo rm -rf /usr/local/share/powershell
           sudo rm -rf /var/lib/docker
+          sudo rm -rf /usr/share/swift /usr/local/.ghcup /usr/local/share/chromium /usr/local/lib/node_modules
           sudo apt-get autoremove -y || true
           sudo apt-get clean
           echo "Disk space after cleanup:"
@@ -158,7 +160,7 @@ jobs:
       - name: Apply MT8127 Patches
         run: |
           cd ~/android/aosp
-          bash device/zte/b760h/patches/patch.sh || true
+          bash device/zte/b760h/patches/patch.sh
 
       - name: Build AOSP TV (${{ inputs.target }})
         run: |
@@ -211,6 +213,10 @@ jobs:
           cp ~/android/aosp/out/target/product/*/boot.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/out/target/product/*/system.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/out/target/product/*/recovery.img "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/out/target/product/*/system/lib/libstagefright.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/out/target/product/*/system/lib/libstagefright_omx.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/out/target/product/*/system/lib/libsurfaceflinger.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
+          cp ~/android/aosp/out/target/product/*/system/lib/libgui.so "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           cp ~/android/aosp/build.log "$GITHUB_WORKSPACE/output/" 2>/dev/null || true
           echo "Collected artifacts in $GITHUB_WORKSPACE/output:"
           ls -lh "$GITHUB_WORKSPACE/output"

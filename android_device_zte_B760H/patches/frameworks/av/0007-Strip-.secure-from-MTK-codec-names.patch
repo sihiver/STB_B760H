@@ -1,7 +1,7 @@
-From 30ae7e82cb6ca0c303a896f7fc97405988ae9972 Mon Sep 17 00:00:00 2001
+From c10dba634ac3e8be02192bc1442cf23faf44a260 Mon Sep 17 00:00:00 2001
 From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
 Date: Sun, 4 Oct 2026 07:48:29 +0700
-Subject: [PATCH 7/7] Strip .secure from MTK codec names
+Subject: [PATCH 7/8] Strip .secure from MTK codec names
 
 The old MTK OMX blobs have no .secure variants, but Cobalt-based
 apps require codecs with that suffix for DRM-protected content to
@@ -15,10 +15,10 @@ Change-Id: Iad1d1339949caba38ea823128568bac5b7f186ec
  2 files changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index 3aecd47..d6bcce1 100644
+index d0b345a..36bf0d5 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
-@@ -8472,7 +8472,14 @@ status_t ACodec::queryCapabilities(
+@@ -8136,7 +8136,14 @@ status_t ACodec::queryCapabilities(
      sp<CodecObserver> observer = new CodecObserver;
      IOMX::node_id node = 0;
  
@@ -35,10 +35,10 @@ index 3aecd47..d6bcce1 100644
          client.disconnect();
          return err;
 diff --git a/media/libstagefright/MediaCodec.cpp b/media/libstagefright/MediaCodec.cpp
-index a8e801f..eaabffb 100644
+index e476424..bc58ce7 100644
 --- a/media/libstagefright/MediaCodec.cpp
 +++ b/media/libstagefright/MediaCodec.cpp
-@@ -327,7 +327,13 @@ sp<CodecBase> MediaCodec::GetCodecBase(const AString &name, bool nameIsType) {
+@@ -326,7 +326,13 @@ sp<CodecBase> MediaCodec::GetCodecBase(const AString &name, bool nameIsType) {
      }
  }
  
@@ -54,5 +54,5 @@ index a8e801f..eaabffb 100644
  
      // save init parameters for reset
 -- 
-2.43.0
+2.53.0
 

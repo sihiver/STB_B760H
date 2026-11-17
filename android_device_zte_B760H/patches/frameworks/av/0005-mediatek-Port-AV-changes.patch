@@ -1,25 +1,19 @@
-From 60101b3f934f25c8982b0b1894a22d307a5388e5 Mon Sep 17 00:00:00 2001
-From: Diogo Ferreira <defer@cyngn.com>
-Date: Tue, 22 Sep 2026 14:03:32 +0700
-Subject: [PATCH 5/6] mediatek: Port AV changes
+From 6416dc0eedeb04d53611858fe3193d6f9e6eedf1 Mon Sep 17 00:00:00 2001
+From: Dindin Suryadi <din2.suryadi@gmail.com>
+Date: Tue, 17 Nov 2026 20:59:05 +0700
+Subject: [PATCH 5/8] mediatek: Port AV changes
 
-This ports the changes required to perform video decoding.
-
-The changes are ported from the mediatek BSP for mt6592
-with the minimum required feature set and confined to
-allow co-existance with changes from other vendors.
-
-Change-Id: I3709de0e5b9e4e0f68a71e182549e72a3dab26a7
 ---
  media/libstagefright/ACodec.cpp              | 14 ++++++++++++--
+ media/libstagefright/omx/Android.mk          |  4 ++++
  media/libstagefright/omx/OMXNodeInstance.cpp |  2 ++
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ 3 files changed, 18 insertions(+), 2 deletions(-)
 
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index fca548b..3aecd47 100644
+index 28d5d8d..d0b345a 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
-@@ -1016,6 +1016,9 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
+@@ -968,6 +968,9 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
      status_t err = mOMX->getParameter(
              mNode, OMX_IndexParamPortDefinition, &def, sizeof(def));
  
@@ -29,7 +23,7 @@ index fca548b..3aecd47 100644
      if (err != OK) {
          return err;
      }
-@@ -1034,6 +1037,13 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
+@@ -986,6 +989,13 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
      }
  
      usage |= kVideoGrallocUsage;
@@ -43,22 +37,37 @@ index fca548b..3aecd47 100644
      *finalUsage = usage;
  
      memset(&mLastNativeWindowCrop, 0, sizeof(mLastNativeWindowCrop));
-@@ -1052,8 +1062,8 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
+@@ -999,8 +1009,8 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
      ALOGV("gralloc usage: %#x(OMX) => %#x(ACodec)", omxUsage, usage);
-     err = setNativeWindowSizeFormatAndUsage(
+     return setNativeWindowSizeFormatAndUsage(
              nativeWindow,
 -            def.format.video.nFrameWidth,
 -            def.format.video.nFrameHeight,
 +            frameWidth,
 +            frameHeight,
- #ifdef USE_SAMSUNG_COLORFORMAT
-             eNativeColorFormat,
- #elif defined(MTK_HARDWARE)
+ #ifdef MTK_HARDWARE
+             eHalColorFormat,
+ #else
+diff --git a/media/libstagefright/omx/Android.mk b/media/libstagefright/omx/Android.mk
+index e4fbd81..447282b 100644
+--- a/media/libstagefright/omx/Android.mk
++++ b/media/libstagefright/omx/Android.mk
+@@ -31,6 +31,10 @@ LOCAL_SHARED_LIBRARIES :=               \
+         libstagefright_foundation       \
+         libdl
+ 
++ifeq ($(strip $(BOARD_USES_MTK_HARDWARE)),true)
++LOCAL_CFLAGS += -DMTK_HARDWARE
++endif
++
+ LOCAL_MODULE:= libstagefright_omx
+ LOCAL_CFLAGS += -Werror -Wall
+ LOCAL_CLANG := true
 diff --git a/media/libstagefright/omx/OMXNodeInstance.cpp b/media/libstagefright/omx/OMXNodeInstance.cpp
-index 99c006d..177e521 100644
+index 44d2d95..0858d3c 100644
 --- a/media/libstagefright/omx/OMXNodeInstance.cpp
 +++ b/media/libstagefright/omx/OMXNodeInstance.cpp
-@@ -932,12 +932,14 @@ status_t OMXNodeInstance::useGraphicBuffer(
+@@ -923,12 +923,14 @@ status_t OMXNodeInstance::useGraphicBuffer(
  
      // See if the newer version of the extension is present.
      OMX_INDEXTYPE index;
@@ -74,5 +83,5 @@ index 99c006d..177e521 100644
      OMX_STRING name = const_cast<OMX_STRING>(
          "OMX.google.android.index.useAndroidNativeBuffer");
 -- 
-2.43.0
+2.53.0
 

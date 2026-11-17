@@ -1,7 +1,7 @@
-From 48916b05e9f77962e131eb8d198cf000123eba7f Mon Sep 17 00:00:00 2001
+From 0801e32f4f7dd9f63e619e21b4a0372c4971c84d Mon Sep 17 00:00:00 2001
 From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
 Date: Mon, 19 Oct 2026 08:44:52 +0700
-Subject: [PATCH] Add colour converter in GLConsumer
+Subject: [PATCH 2/3] Add colour converter in GLConsumer
 
 This fixes hardware video decoding on apps that use a TextureView
 for video playback.
@@ -20,7 +20,7 @@ Change-Id: I2317100d66c8be4a242767bed45bb526825a95c7
  create mode 100644 include/gui/dpframework/DpDataType.h
 
 diff --git a/include/gui/GLConsumer.h b/include/gui/GLConsumer.h
-index 6267625..c89f191 100644
+index 6267625..abd462f 100644
 --- a/include/gui/GLConsumer.h
 +++ b/include/gui/GLConsumer.h
 @@ -30,6 +30,11 @@
@@ -685,7 +685,7 @@ index 0000000..c5f9f56
 +
 +#endif  // __DP_DATA_TYPE_H__
 diff --git a/libs/gui/Android.mk b/libs/gui/Android.mk
-index 0889aaf..bd49d22 100644
+index 9e2fc2b..4c1bdb6 100644
 --- a/libs/gui/Android.mk
 +++ b/libs/gui/Android.mk
 @@ -96,6 +96,11 @@ ifeq ($(TARGET_BOARD_PLATFORM), tegra3)
@@ -697,11 +697,11 @@ index 0889aaf..bd49d22 100644
 +LOCAL_SHARED_LIBRARIES += libdpframework libhardware
 +endif
 +
- ifeq ($(TARGET_NO_SENSOR_PERMISSION_CHECK),true)
- LOCAL_CPPFLAGS += -DNO_SENSOR_PERMISSION_CHECK
- endif
+ include $(BUILD_SHARED_LIBRARY)
+ 
+ ifeq (,$(ONE_SHOT_MAKEFILE))
 diff --git a/libs/gui/GLConsumer.cpp b/libs/gui/GLConsumer.cpp
-index 10e999c..03dabd5 100644
+index 10e999c..2032ff7 100644
 --- a/libs/gui/GLConsumer.cpp
 +++ b/libs/gui/GLConsumer.cpp
 @@ -42,6 +42,18 @@
@@ -1469,5 +1469,5 @@ index 10e999c..03dabd5 100644
      ConsumerBase::abandonLocked();
  }
 -- 
-2.43.0
+2.53.0
 

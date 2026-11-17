@@ -16,7 +16,12 @@ find "${MY_DIR}" -mindepth 2 -type f -name "*.patch" | sort | while read -r patc
             if git apply --reverse --check "$patch" >/dev/null 2>&1; then
                 echo "  Already applied, skipping."
             else
-                git am --whitespace=nowarn --keep-cr "$patch" 2>/dev/null || git apply --whitespace=nowarn "$patch" 2>/dev/null || echo "  Warning: could not apply $patch_name"
+                if ! (git am --whitespace=nowarn --keep-cr "$patch" 2>/dev/null || git apply --whitespace=nowarn "$patch"); then
+                    echo "  ERROR: could not apply $patch_name in ${rel_dir}" >&2
+                    if [ "${rel_dir}" = "frameworks/av" ] || [ "${rel_dir}" = "frameworks/native" ]; then
+                        exit 1
+                    fi
+                fi
             fi
         )
     else

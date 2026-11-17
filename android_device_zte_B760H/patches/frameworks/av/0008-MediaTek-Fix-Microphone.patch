@@ -1,20 +1,20 @@
-From 7a3e536a584ecfa5aa9c12aaf0a166d3fa9b5c8b Mon Sep 17 00:00:00 2001
-From: adi766 <adityakumarteli7846@gmail.com>
-Date: Sat, 23 Sep 2017 16:07:34 +0000
-Subject: [PATCH] MediaTek: Fix Microphone
+From 768ddf570e3b87a19fdbbef1a91210077eb8ad38 Mon Sep 17 00:00:00 2001
+From: Dindin Suryadi <din2.suryadi@gmail.com>
+Date: Tue, 17 Nov 2026 20:59:05 +0700
+Subject: [PATCH 8/8] MediaTek: Fix Microphone
 
 ---
  services/audioflinger/Android.mk  | 4 ++++
- services/audioflinger/Threads.cpp | 4 ++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ services/audioflinger/Threads.cpp | 2 ++
+ 2 files changed, 6 insertions(+)
 
 diff --git a/services/audioflinger/Android.mk b/services/audioflinger/Android.mk
-index 886421516..1d09376ec 100644
+index 8b831f0..563f1db 100644
 --- a/services/audioflinger/Android.mk
 +++ b/services/audioflinger/Android.mk
-@@ -87,6 +87,10 @@ endif
- endif
- #QTI Resampler
+@@ -66,6 +66,10 @@ LOCAL_STATIC_LIBRARIES := \
+ 
+ LOCAL_MULTILIB := $(AUDIOSERVER_MULTILIB)
  
 +ifeq ($(BOARD_HAS_MTK_HARDWARE),true)
 +LOCAL_CFLAGS += -DLEGACY_AUDIO_BLOB
@@ -24,27 +24,25 @@ index 886421516..1d09376ec 100644
  
  LOCAL_SRC_FILES += \
 diff --git a/services/audioflinger/Threads.cpp b/services/audioflinger/Threads.cpp
-index e8c80c17c..a6c02dc98 100644
+index 7423ea9..bf80f7b 100644
 --- a/services/audioflinger/Threads.cpp
 +++ b/services/audioflinger/Threads.cpp
-@@ -6461,7 +6461,7 @@ reacquire_wakelock:
-         // systemTime() is optional if the hardware supports timestamps.
+@@ -6326,6 +6326,7 @@ reacquire_wakelock:
          mTimestamp.mPosition[ExtendedTimestamp::LOCATION_SERVER] += framesRead;
          mTimestamp.mTimeNs[ExtendedTimestamp::LOCATION_SERVER] = systemTime();
--
+ 
 +#ifndef LEGACY_AUDIO_BLOB
          // Update server timestamp with kernel stats
          if (mInput->stream->get_capture_position != nullptr
                  && mPipeSource.get() == nullptr /* don't obtain for FastCapture, could block */) {
-@@ -6479,7 +6479,7 @@ reacquire_wakelock:
+@@ -6343,6 +6344,7 @@ reacquire_wakelock:
          }
          // Use this to track timestamp information
          // ALOGD("%s", mTimestamp.toString().c_str());
--
 +#endif
+ 
          if (framesRead < 0 || (framesRead == 0 && mPipeSource == 0)) {
              ALOGE("read failed: framesRead=%zd", framesRead);
-             // Force input into standby so that it tries to recover at next read attempt
 -- 
-2.15.0.windows.1
+2.53.0
 
