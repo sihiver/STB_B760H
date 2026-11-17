@@ -1,6 +1,8 @@
 # Firmware dump
 kitkat_B760H/
 B760H_os7_10112026/
+FW_B760H_4.4/
+backup_codec_*/
 
 # Original tablet repositories (already separate repos)
 android_device_lenovo_TB3710F/
