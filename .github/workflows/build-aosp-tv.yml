@@ -1,5 +1,8 @@
 name: Build AOSP TV 7.1.2 for ZTE B760H
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -31,7 +34,7 @@ jobs:
         run: |
           echo "Initial disk space:"
           df -h
-          sudo apt-get purge -y azure-cli google-cloud-cli hhvm google-chrome-stable firefox microsoft-edge-stable || true
+          sudo apt-get purge -y azure-cli google-cloud-cli google-chrome-stable firefox microsoft-edge-stable || true
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /usr/local/lib/android
           sudo rm -rf /opt/ghc
@@ -221,22 +224,18 @@ jobs:
           echo "Collected artifacts in $GITHUB_WORKSPACE/output:"
           ls -lh "$GITHUB_WORKSPACE/output"
 
-      - name: Upload Output Artifacts
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: aosp-tv-7.1.2-B760H-output
-          path: |
-            output/*.zip
-            output/boot.img
-            output/system.img
-            output/recovery.img
-          if-no-files-found: warn
-
-      - name: Upload Build Log
+      - name: Upload Output to GitHub Release
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: aosp-build-log
-          path: output/build.log
-          if-no-files-found: ignore
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="aosp-tv-${{ github.run_number }}"
+          FILES=$(find "$GITHUB_WORKSPACE/output" -maxdepth 1 -type f)
+          if [ -z "$FILES" ]; then
+            echo "No output files found to upload."
+            exit 1
+          fi
+          gh release create "$TAG" $FILES \
+            --title "AOSP TV 7.1.2 B760H (#${{ github.run_number }})" \
+            --notes "Target: \`${{ inputs.target }}\` | Status: ${{ job.status }}" \
+            --prerelease
