@@ -1,4 +1,4 @@
-From ee6aef9ff2855a78928e391bfeb09c6625c5a754 Mon Sep 17 00:00:00 2001
+From 8eae1ddf77ff0edccdcc5ca1384591ee10cb3467 Mon Sep 17 00:00:00 2001
 From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
 Date: Tue, 22 Sep 2026 13:03:45 +0700
 Subject: [PATCH 3/8] Revert "Don't allow using or allocating a buffer after

@@ -1,4 +1,4 @@
-From c10dba634ac3e8be02192bc1442cf23faf44a260 Mon Sep 17 00:00:00 2001
+From d7bb6665a4ce1db4c90bcd871b95e623a6534663 Mon Sep 17 00:00:00 2001
 From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
 Date: Sun, 4 Oct 2026 07:48:29 +0700
 Subject: [PATCH 7/8] Strip .secure from MTK codec names
@@ -15,10 +15,10 @@ Change-Id: Iad1d1339949caba38ea823128568bac5b7f186ec
  2 files changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index d0b345a..36bf0d5 100644
+index 647675d..6199157 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
-@@ -8136,7 +8136,14 @@ status_t ACodec::queryCapabilities(
+@@ -8142,7 +8142,14 @@ status_t ACodec::queryCapabilities(
      sp<CodecObserver> observer = new CodecObserver;
      IOMX::node_id node = 0;
  

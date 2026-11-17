@@ -1,16 +1,16 @@
-From 6416dc0eedeb04d53611858fe3193d6f9e6eedf1 Mon Sep 17 00:00:00 2001
+From a7d4e705435a9e5bc9d9df17d1425ae7fe8f0b28 Mon Sep 17 00:00:00 2001
 From: Dindin Suryadi <din2.suryadi@gmail.com>
 Date: Tue, 17 Nov 2026 20:59:05 +0700
 Subject: [PATCH 5/8] mediatek: Port AV changes
 
 ---
- media/libstagefright/ACodec.cpp              | 14 ++++++++++++--
+ media/libstagefright/ACodec.cpp              | 20 ++++++++++++++++++--
  media/libstagefright/omx/Android.mk          |  4 ++++
  media/libstagefright/omx/OMXNodeInstance.cpp |  2 ++
- 3 files changed, 18 insertions(+), 2 deletions(-)
+ 3 files changed, 24 insertions(+), 2 deletions(-)
 
 diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
-index 28d5d8d..d0b345a 100644
+index 28d5d8d..647675d 100644
 --- a/media/libstagefright/ACodec.cpp
 +++ b/media/libstagefright/ACodec.cpp
 @@ -968,6 +968,9 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
@@ -48,6 +48,19 @@ index 28d5d8d..d0b345a 100644
  #ifdef MTK_HARDWARE
              eHalColorFormat,
  #else
+@@ -1077,6 +1087,12 @@ status_t ACodec::configureOutputBuffersFromNativeWindow(
+                 mNode, OMX_IndexParamPortDefinition, &def, sizeof(def));
+ 
+         if (err == OK) {
++#ifdef MTK_HARDWARE
++            if (!strncmp("OMX.MTK.", mComponentName.c_str(), 8)) {
++                mOMX->getParameter(
++                        mNode, OMX_IndexParamPortDefinition, &def, sizeof(def));
++            }
++#endif
+             *minUndequeuedBuffers += extraBuffers;
+             break;
+         }
 diff --git a/media/libstagefright/omx/Android.mk b/media/libstagefright/omx/Android.mk
 index e4fbd81..447282b 100644
 --- a/media/libstagefright/omx/Android.mk

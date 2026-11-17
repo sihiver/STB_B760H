@@ -1,4 +1,4 @@
-From 0699074a21a1d0ae12f872080ada331960837336 Mon Sep 17 00:00:00 2001
+From 5212d2de69f5edba090cd83c2e8cd1a766ece17c Mon Sep 17 00:00:00 2001
 From: gamblingaddict <112048350+gamblingaddict@users.noreply.github.com>
 Date: Fri, 2 Oct 2026 19:46:18 +0700
 Subject: [PATCH 6/8] Output audio from HDMI and CVBS simultaneously

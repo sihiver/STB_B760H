@@ -1,4 +1,4 @@
-From 398a6b6a9b6e1f817e999e4cfd2470542d8b05af Mon Sep 17 00:00:00 2001
+From c35201a9940306d90269010ffafea10afad12e5b Mon Sep 17 00:00:00 2001
 From: Dindin Suryadi <din2.suryadi@gmail.com>
 Date: Tue, 17 Nov 2026 20:59:05 +0700
 Subject: [PATCH 4/8] Revert "OMXNodeInstance: check pointers before

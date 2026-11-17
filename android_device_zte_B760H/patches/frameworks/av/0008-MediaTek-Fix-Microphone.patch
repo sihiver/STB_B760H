@@ -1,4 +1,4 @@
-From 768ddf570e3b87a19fdbbef1a91210077eb8ad38 Mon Sep 17 00:00:00 2001
+From d1d9d22f0391c13c56cd680269d16f1cea89aaac Mon Sep 17 00:00:00 2001
 From: Dindin Suryadi <din2.suryadi@gmail.com>
 Date: Tue, 17 Nov 2026 20:59:05 +0700
 Subject: [PATCH 8/8] MediaTek: Fix Microphone
