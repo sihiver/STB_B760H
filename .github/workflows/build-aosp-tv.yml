@@ -109,11 +109,12 @@ jobs:
           git config --global user.email "builder@localhost"
           git config --global color.ui false
           
-          # Setup Jack Server memory for Nougat
-          echo "export JACK_SERVER_VM_ARGUMENTS=\"-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx3584m\"" >> $GITHUB_ENV
+          # Setup Jack Server memory for Nougat (GITHUB_ENV uses KEY=VALUE without 'export' or quotes)
+          echo "JACK_SERVER_VM_ARGUMENTS=-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx5120m" >> $GITHUB_ENV
+          echo "ANDROID_JACK_VM_ARGS=-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx5120m" >> $GITHUB_ENV
           
           # Disable ccache to save ~15GB disk space on ephemeral runner
-          echo "export USE_CCACHE=0" >> $GITHUB_ENV
+          echo "USE_CCACHE=0" >> $GITHUB_ENV
 
       - name: Inisialisasi AOSP 7.1.2 Tree
         run: |
@@ -173,6 +174,9 @@ jobs:
           
           # Strictly enforce 2 parallel jobs on Ninja and GNU Make to prevent OOM
           export NINJA_ARGS="-j 2"
+          export JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx5120m"
+          export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx5120m"
+          ./prebuilts/sdk/tools/jack-admin kill-server || true
           
           BUILD_TARGET="${{ inputs.target }}"
           echo "Executing build: make -j2 $BUILD_TARGET"
