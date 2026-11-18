@@ -18,3 +18,7 @@ output/
 aosp-tv-7.1.2-B760H-output/
 open_gapps*
 B760H_Gapps_os7/
+ASOP_7.1.2_FiX/
+ASOP_Repo/
+*.img
+*.img.bak
