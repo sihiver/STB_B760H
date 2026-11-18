@@ -20,8 +20,8 @@ logcat -b system -s DisplayManagerService:I | while read -r line; do
             /system/bin/ioctl -d /dev/hdmitx 0x4803 0 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4004480c 0 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0xc004480b 0 >/dev/null 2>&1
-            echo 0 > /proc/ledlight/powergreen/state 2>/dev/null
-            echo 1 > /proc/ledlight/powerred/state 2>/dev/null
+            echo off > /proc/ledlight/powergreen/state 2>/dev/null
+            echo on > /proc/ledlight/powerred/state 2>/dev/null
             ;;
         *"Display device changed state:"*", ON"*)
             res=$(getprop vendor.hdmi.boot_res)
@@ -33,8 +33,8 @@ logcat -b system -s DisplayManagerService:I | while read -r line; do
             sleep 1
             /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$res" >/dev/null 2>&1
             echo 0 > /sys/class/graphics/fb0/blank 2>/dev/null
-            echo 0 > /proc/ledlight/powerred/state 2>/dev/null
-            echo 1 > /proc/ledlight/powergreen/state 2>/dev/null
+            echo off > /proc/ledlight/powerred/state 2>/dev/null
+            echo on > /proc/ledlight/powergreen/state 2>/dev/null
             ;;
     esac
 done
