@@ -52,7 +52,22 @@ fi
     done
 ) &
 
-# 3. Main network route & DNS watchdog loop
+# 3. Main network route, DNS & LAN LED watchdog loop
+LAST_NET_LED=""
+set_net_led() {
+    if [ "$LAST_NET_LED" = "$1" ]; then
+        return
+    fi
+    if [ "$1" = "green" ]; then
+        echo off > /proc/ledlight/netred/state 2>/dev/null
+        echo on > /proc/ledlight/netgreen/state 2>/dev/null
+    else
+        echo off > /proc/ledlight/netgreen/state 2>/dev/null
+        echo on > /proc/ledlight/netred/state 2>/dev/null
+    fi
+    LAST_NET_LED="$1"
+}
+
 while true; do
     GW=""
     IFACE=""
@@ -104,6 +119,12 @@ while true; do
             setprop net.${IFACE}.dns1 8.8.8.8
             setprop net.${IFACE}.dns2 1.1.1.1
         fi
+    fi
+
+    if [ -n "$GW" ] && [ -n "$IFACE" ] && (ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1 || ping -c 1 -W 2 1.1.1.1 >/dev/null 2>&1); then
+        set_net_led green
+    else
+        set_net_led red
     fi
     sleep 3
 done
