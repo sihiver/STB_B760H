@@ -32,6 +32,7 @@ PRODUCT_PACKAGES += \
     NoTouchAuthDelegate \
     SecondScreenSetup \
     SecondScreenSetupAuthBridge \
+    YouTubeLeanback \
     talkback \
     AtvRemoteService \
     CanvasPackageInstaller \
@@ -40,6 +41,7 @@ PRODUCT_PACKAGES += \
     GoogleExtServices \
     GoogleServicesFramework \
     Katniss \
+    LeanbackLauncher \
     PrebuiltGmsCorePano \
     RecommendationsService \
     TV \
