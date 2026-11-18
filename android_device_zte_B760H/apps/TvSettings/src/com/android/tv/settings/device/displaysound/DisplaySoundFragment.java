@@ -48,6 +48,8 @@ public class DisplaySoundFragment extends LeanbackPreferenceFragment implements
 
     private static final String KEY_DISPLAY_RESOLUTION = "display_resolution";
     private static final String PROP_HDMI_BOOT_RES = "vendor.hdmi.boot_res";
+    private static final String PROP_HDMI_ACTIVE_RES = "vendor.hdmi.active_res";
+    private static final String PROP_HDMI_PERSIST_RES = "persist.sys.hdmi.res";
 
     private static final String KEY_DISPLAY_OVERSCAN = "display_overscan";
 
@@ -132,27 +134,15 @@ public class DisplaySoundFragment extends LeanbackPreferenceFragment implements
         } else if (TextUtils.equals(preference.getKey(), KEY_DISPLAY_RESOLUTION)) {
             int resValue = Integer.parseInt((String) newValue);
             if (resValue != getCurrentResolution()) {
-                PowerManager pm =
-                        (PowerManager) getActivity().getSystemService(Context.POWER_SERVICE);
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle(R.string.system_reboot_confirm)
-                        .setMessage(R.string.system_desc_reboot_confirm)
-                        .setCancelable(true)
-                        .setPositiveButton(R.string.restart_button_label, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                if (setHdmiResolution(resValue)) {
-                                    pm.reboot(null);
-                                } else {
-                                    SettingsToast.makeText(getContext(), R.string.accessory_state_canceled, SettingsToast.LENGTH_LONG).show();
-                                }
-                            }
-                        })
-                        .setNegativeButton(R.string.settings_cancel, null);
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-                // The resolution would only change after a reboot.
-                return false;
+                if (setHdmiResolution(resValue)) {
+                    SystemProperties.set(PROP_HDMI_PERSIST_RES, Integer.toString(resValue));
+                    SystemProperties.set(PROP_HDMI_ACTIVE_RES, Integer.toString(resValue));
+                    return true;
+                } else {
+                    SettingsToast.makeText(getContext(), R.string.accessory_state_canceled,
+                            SettingsToast.LENGTH_LONG).show();
+                    return false;
+                }
             }
         }
         return true;
@@ -179,6 +169,14 @@ public class DisplaySoundFragment extends LeanbackPreferenceFragment implements
     }
 
     private static int getCurrentResolution() {
+        int persist = SystemProperties.getInt(PROP_HDMI_PERSIST_RES, -1);
+        if (persist >= 0) {
+            return persist;
+        }
+        int active = SystemProperties.getInt(PROP_HDMI_ACTIVE_RES, -1);
+        if (active >= 0) {
+            return active;
+        }
         return SystemProperties.getInt(PROP_HDMI_BOOT_RES, -1);
     }
 

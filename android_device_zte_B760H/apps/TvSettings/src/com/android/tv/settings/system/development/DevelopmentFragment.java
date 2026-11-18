@@ -72,9 +72,7 @@ import android.view.accessibility.AccessibilityManager;
 import com.android.internal.app.LocalePicker;
 import com.android.tv.settings.R;
 
-import cyanogenmod.providers.CMSettings;
-import org.cyanogenmod.internal.util.FileUtils;
-
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -446,7 +444,7 @@ public class DevelopmentFragment extends LeanbackPreferenceFragment
         mRootAccess = (ListPreference) findPreference(ROOT_ACCESS_KEY);
         mRootAccess.setOnPreferenceChangeListener(this);
         if (!removeRootOptionsIfRequired()) {
-            if (FileUtils.fileExists("/system/xbin/su")) {
+            if (new File("/system/xbin/su").exists()) {
                 mRootAccess.setEntries(R.array.root_access_entries);
                 mRootAccess.setEntryValues(R.array.root_access_values);
             } else {
@@ -668,8 +666,7 @@ public class DevelopmentFragment extends LeanbackPreferenceFragment
     }
 
     private void updateAdbOverNetwork() {
-        int port = CMSettings.Secure.getInt(getActivity().getContentResolver(),
-                CMSettings.Secure.ADB_PORT, 0);
+        int port = SystemProperties.getInt("service.adb.tcp.port", 0);
         boolean enabled = port > 0;
 
         updateSwitchPreference(mAdbOverNetwork, enabled);
@@ -751,8 +748,7 @@ public class DevelopmentFragment extends LeanbackPreferenceFragment
     }
 
     private void resetAdbNotifyOptions() {
-        CMSettings.Secure.putInt(getActivity().getContentResolver(),
-                CMSettings.Secure.ADB_NOTIFY, 1);
+        // No-op on AOSP builds without CMSettings
     }
 
     private void resetRootAccessOptions() {
@@ -1656,11 +1652,9 @@ public class DevelopmentFragment extends LeanbackPreferenceFragment
             }
         } else if (preference == mAdbOverNetwork) {
             if (mAdbOverNetwork.isChecked()) {
-                CMSettings.Secure.putInt(getActivity().getContentResolver(),
-                        CMSettings.Secure.ADB_PORT, 5555);
+                SystemProperties.set("service.adb.tcp.port", "5555");
             } else {
-                CMSettings.Secure.putInt(getActivity().getContentResolver(),
-                        CMSettings.Secure.ADB_PORT, -1);
+                SystemProperties.set("service.adb.tcp.port", "-1");
                 updateAdbOverNetwork();
             }
         } else if (preference == mEnableTerminal) {

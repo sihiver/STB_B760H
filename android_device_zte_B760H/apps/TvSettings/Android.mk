@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ifneq (,$(filter lineage_b760h,$(PRODUCT_NAME) $(TARGET_PRODUCT)))
 LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
@@ -31,8 +30,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     android-support-v7-appcompat \
     android-support-v14-preference \
     android-support-v17-preference-leanback \
-    android-support-v17-leanback \
-    org.cyanogenmod.platform.internal
+    android-support-v17-leanback
 
 LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/res \
@@ -53,4 +51,3 @@ LOCAL_SRC_FILES := \
 include frameworks/base/packages/SettingsLib/common.mk
 
 include $(BUILD_PACKAGE)
-endif

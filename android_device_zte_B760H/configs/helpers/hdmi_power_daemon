@@ -13,8 +13,13 @@ if [ -b /dev/block/mmcblk0p8 ]; then
 fi
 
 # Auto-detect TV EDID preferred resolution (1080p60=11, 1080p50=12, 720p60=2, 720p50=3)
+# Respects user's manual selection in persist.sys.hdmi.res if set.
 detect_hdmi_res() {
-    local edid_line b0 b1 b2 b3 b4 b5 b6 b7 ntsc pal boot_res
+    local user_res edid_line b0 b1 b2 b3 b4 b5 b6 b7 ntsc pal boot_res
+    user_res=$(getprop persist.sys.hdmi.res)
+    if [ -n "$user_res" ]; then
+        echo "$user_res"; return
+    fi
     edid_line=$(/system/bin/ioctl -l 112 /dev/hdmitx 0xc070483d 2>/dev/null | grep '^return buf:')
     if [ -n "$edid_line" ]; then
         set -- ${edid_line#return buf: }
