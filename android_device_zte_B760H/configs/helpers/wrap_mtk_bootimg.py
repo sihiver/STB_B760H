@@ -82,16 +82,18 @@ def replace_ramdisk_init(ramdisk_gz, init_path):
     """Replace /init in a gzipped cpio ramdisk with the proven MT8127 init."""
     raw = gzip.decompress(ramdisk_gz)
     with tempfile.TemporaryDirectory() as tmp:
+        os.chmod(tmp, 0o755)
         subprocess.run(
             ["cpio", "-idm", "--no-absolute-filenames"],
             input=raw, cwd=tmp, check=True,
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )
+        os.chmod(tmp, 0o755)
         dst_init = os.path.join(tmp, "init")
         shutil.copy2(init_path, dst_init)
         os.chmod(dst_init, 0o750)
         cpio_proc = subprocess.run(
-            "find . | cpio -o -H newc --quiet",
+            "find . | cpio -o -H newc --quiet -R 0:0",
             shell=True, cwd=tmp, check=True, stdout=subprocess.PIPE,
         )
         return gzip.compress(cpio_proc.stdout, compresslevel=9)
