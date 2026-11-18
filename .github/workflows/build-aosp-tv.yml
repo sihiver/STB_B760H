@@ -198,7 +198,11 @@ jobs:
             echo "--- KERNEL OOM EVENTS ---"
             sudo dmesg -T | grep -iE 'oom|killed|out of memory' | tail -n 25 || true
             echo "--- EXTRACTING FAILED SUBCOMMAND FROM BUILD.LOG ---"
-            grep -B 5 -A 35 "FAILED:" build.log | tail -n 50 || true
+            # First failure is the root cause (later ones are fallout); show it with the full command/linker output
+            LN=$(grep -n "^FAILED:" build.log | head -n 1 | cut -d: -f1)
+            if [ -n "$LN" ]; then sed -n "${LN},$((LN+60))p" build.log | cut -c1-400; fi
+            echo "--- LINKER ERRORS (undefined reference / ld) ---"
+            grep -n -E "undefined reference|undefined symbol|cannot find -l|ld: |error: linker" build.log | head -n 40 | cut -c1-400 || true
             echo "--- EXTRACTING COMPILER ERRORS ---"
             grep -E -i "error:|fatal error:|internal compiler error" build.log | tail -n 30 || true
             echo "--- LAST 50 LINES OF LOG ---"
