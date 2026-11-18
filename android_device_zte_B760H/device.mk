@@ -168,9 +168,7 @@ PRODUCT_PACKAGES += \
     FileManagerPlus
 
 PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/configs/init/keyboard.rc:system/etc/init/keyboard.rc \
-    $(DEVICE_PATH)/configs/init/home_kill.rc:system/etc/init/home_kill.rc \
-    $(DEVICE_PATH)/configs/init/home_kill.sh:system/bin/home_kill.sh
+    $(DEVICE_PATH)/configs/init/keyboard.rc:system/etc/init/keyboard.rc
 
 # Remove packages
 PRODUCT_PACKAGES += RemovePackages

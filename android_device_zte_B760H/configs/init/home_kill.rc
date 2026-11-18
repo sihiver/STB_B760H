@@ -1,6 +1,0 @@
-service home_kill /system/bin/sh /system/bin/home_kill.sh
-    class late_start
-    user root
-    group root
-    seclabel u:r:su:s0
-
