@@ -9,19 +9,21 @@ Returning false from ColorFade.prepare() skips the GL fade animation and
 lets DisplayPowerController transition cleanly to Display.STATE_OFF.
 
 ---
- services/core/java/com/android/server/display/ColorFade.java | 3 +++
- 1 file changed, 3 insertions(+)
+ services/core/java/com/android/server/display/ColorFade.java | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/services/core/java/com/android/server/display/ColorFade.java b/services/core/java/com/android/server/display/ColorFade.java
 index 0000000..1111111 100644
 --- a/services/core/java/com/android/server/display/ColorFade.java
 +++ b/services/core/java/com/android/server/display/ColorFade.java
-@@ -137,6 +137,9 @@ final class ColorFade {
+@@ -137,6 +137,11 @@ final class ColorFade {
       * @return True if the color fade is ready, false if it is uncontrollable.
       */
      public boolean prepare(Context context, int mode) {
 +        // Skip EGL ColorFade on MT8127 Mali-450 to avoid system_server SIGSEGV on sleep.
-+        return false;
++        if (android.os.SystemProperties.getBoolean("persist.sys.disable_colorfade", true)) {
++            return false;
++        }
 +
          if (DEBUG) {
              Slog.d(TAG, "prepare: mode=" + mode);
