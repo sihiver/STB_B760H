@@ -12,6 +12,43 @@ if [ -b /dev/block/mmcblk0p8 ]; then
     fi
 fi
 
+# Auto-detect TV EDID preferred resolution (1080p60=11, 1080p50=12, 720p60=2, 720p50=3)
+detect_hdmi_res() {
+    local edid_line b0 b1 b2 b3 b4 b5 b6 b7 ntsc pal boot_res
+    edid_line=$(/system/bin/ioctl -l 112 /dev/hdmitx 0xc070483d 2>/dev/null | grep '^return buf:')
+    if [ -n "$edid_line" ]; then
+        set -- ${edid_line#return buf: }
+        b0=$1; b1=$2; b2=$3; b3=$4
+        b4=$5; b5=$6; b6=$7; b7=$8
+        if [ -n "$b7" ]; then
+            ntsc=$(( 0x$b0 | (0x$b1 << 8) | (0x$b2 << 16) | (0x$b3 << 24) ))
+            pal=$(( 0x$b4 | (0x$b5 << 8) | (0x$b6 << 16) | (0x$b7 << 24) ))
+            if [ $(( ntsc & 8 )) -ne 0 ]; then
+                echo 11; return
+            elif [ $(( pal & 2048 )) -ne 0 ]; then
+                echo 12; return
+            elif [ $(( ntsc & 2 )) -ne 0 ]; then
+                echo 2; return
+            elif [ $(( pal & 512 )) -ne 0 ]; then
+                echo 3; return
+            fi
+        fi
+    fi
+    boot_res=$(getprop vendor.hdmi.boot_res)
+    echo "${boot_res:-11}"
+}
+
+# Apply EDID resolution at startup if different from bootloader hdmi_res
+if [ "$(cat /sys/class/switch/hdmi/state 2>/dev/null)" = "1" ]; then
+    init_res=$(detect_hdmi_res)
+    boot_res=$(getprop vendor.hdmi.boot_res)
+    [ -z "$boot_res" ] && boot_res=11
+    if [ "$init_res" != "$boot_res" ]; then
+        /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$init_res" >/dev/null 2>&1
+    fi
+    setprop vendor.hdmi.active_res "$init_res"
+fi
+
 # Listen to DisplayManagerService state changes in system buffer
 logcat -b system -s DisplayManagerService:I | while read -r line; do
     case "$line" in
@@ -24,14 +61,14 @@ logcat -b system -s DisplayManagerService:I | while read -r line; do
             echo on > /proc/ledlight/powerred/state 2>/dev/null
             ;;
         *"Display device changed state:"*", ON"*)
-            res=$(getprop vendor.hdmi.boot_res)
-            [ -z "$res" ] && res=11
+            res=$(detect_hdmi_res)
             /system/bin/ioctl -d /dev/hdmitx 0xc004480b 1 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4004480c 1 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4801 1 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4803 1 >/dev/null 2>&1
             sleep 1
             /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$res" >/dev/null 2>&1
+            setprop vendor.hdmi.active_res "$res"
             echo 0 > /sys/class/graphics/fb0/blank 2>/dev/null
             echo off > /proc/ledlight/powerred/state 2>/dev/null
             echo on > /proc/ledlight/powergreen/state 2>/dev/null
