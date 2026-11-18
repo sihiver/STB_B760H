@@ -41,7 +41,6 @@ PRODUCT_PACKAGES += \
     GoogleExtServices \
     GoogleServicesFramework \
     Katniss \
-    LeanbackLauncher \
     PrebuiltGmsCorePano \
     RecommendationsService \
     TV \
