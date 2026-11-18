@@ -33,11 +33,11 @@ while read -r patch; do
 done < <(find "${MY_DIR}" -mindepth 2 -type f -name "*.patch" | sort)
 
 # ZTE LK bootloader strips BOARD_KERNEL_CMDLINE, so androidboot.selinux=permissive
-# never reaches /proc/cmdline; force permissive on userdebug builds in AOSP init.cpp.
+# never reaches /proc/cmdline; default selinux_status_from_cmdline() to SELINUX_PERMISSIVE.
 INIT_CPP="${ROOT}/system/core/init/init.cpp"
-if [ -f "${INIT_CPP}" ] && grep -q 'selinux_status_from_cmdline() == SELINUX_ENFORCING' "${INIT_CPP}"; then
+if [ -f "${INIT_CPP}" ] && grep -q 'selinux_enforcing_status status = SELINUX_ENFORCING;' "${INIT_CPP}"; then
     echo "Patching system/core/init/init.cpp to default SELinux permissive..."
-    sed -i 's/return selinux_status_from_cmdline() == SELINUX_ENFORCING;/return false;/' "${INIT_CPP}"
+    sed -i 's/selinux_enforcing_status status = SELINUX_ENFORCING;/selinux_enforcing_status status = SELINUX_PERMISSIVE;/' "${INIT_CPP}"
 fi
 
 echo "=== All Patches Processed ==="
