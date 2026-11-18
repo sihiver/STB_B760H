@@ -184,14 +184,14 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/lib/libvp8dec_sa.ca7.so:system/lib/libvp8dec_sa.ca7.so \
     vendor/zte/b760h/proprietary/lib/libvp9dec_sa.ca7.so:system/lib/libvp9dec_sa.ca7.so \
     vendor/zte/b760h/proprietary/vendor/bin/drvbd:system/bin/drvbd \
-    vendor/zte/b760h/proprietary/vendor/etc/mtk_omx_core.cfg:vendor/etc/mtk_omx_core.cfg \
-    vendor/zte/b760h/proprietary/vendor/lib/drm/libdrmwvmplugin.so:vendor/lib/drm/libdrmwvmplugin.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libClearMotionFW.so:vendor/lib/libClearMotionFW.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libHEVCdec_sa.ca7.android.so:vendor/lib/libHEVCdec_sa.ca7.android.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libMtkOmxCore.so:vendor/lib/libMtkOmxCore.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libMtkOmxVdecEx.so:vendor/lib/libMtkOmxVdecEx.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libMtkOmxVenc.so:vendor/lib/libMtkOmxVenc.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libWVStreamControlAPI_L3.so:vendor/lib/libWVStreamControlAPI_L3.so \
+    vendor/zte/b760h/proprietary/vendor/etc/mtk_omx_core.cfg:system/vendor/etc/mtk_omx_core.cfg \
+    vendor/zte/b760h/proprietary/vendor/lib/drm/libdrmwvmplugin.so:system/vendor/lib/drm/libdrmwvmplugin.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libClearMotionFW.so:system/vendor/lib/libClearMotionFW.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libHEVCdec_sa.ca7.android.so:system/vendor/lib/libHEVCdec_sa.ca7.android.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libMtkOmxCore.so:system/vendor/lib/libMtkOmxCore.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libMtkOmxVdecEx.so:system/vendor/lib/libMtkOmxVdecEx.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libMtkOmxVenc.so:system/vendor/lib/libMtkOmxVenc.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libWVStreamControlAPI_L3.so:system/vendor/lib/libWVStreamControlAPI_L3.so \
     vendor/zte/b760h/proprietary/vendor/lib/libavcodec.so:system/vendor/lib/libavcodec.so \
     vendor/zte/b760h/proprietary/vendor/lib/libavformat.so:system/vendor/lib/libavformat.so \
     vendor/zte/b760h/proprietary/vendor/lib/libavutil.so:system/vendor/lib/libavutil.so \
@@ -200,18 +200,18 @@ PRODUCT_COPY_FILES += \
     vendor/zte/b760h/proprietary/vendor/lib/libffmpeg_extractor.so:system/vendor/lib/libffmpeg_extractor.so \
     vendor/zte/b760h/proprietary/vendor/lib/libffmpeg_omx.so:system/vendor/lib/libffmpeg_omx.so \
     vendor/zte/b760h/proprietary/vendor/lib/libffmpeg_utils.so:system/vendor/lib/libffmpeg_utils.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libh264enc_sa.ca7.so:vendor/lib/libh264enc_sa.ca7.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libh264enc_sb.ca7.so:vendor/lib/libh264enc_sb.ca7.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libmp4enc_sa.ca7.so:vendor/lib/libmp4enc_sa.ca7.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libmp4enc_xa.ca7.so:vendor/lib/libmp4enc_xa.ca7.so \
-    vendor/zte/b760h/proprietary/vendor/lib/librrc.so:vendor/lib/librrc.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libvc1dec_sa.ca7.so:vendor/lib/libvc1dec_sa.ca7.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libvcodec_oal.so:vendor/lib/libvcodec_oal.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libvcodecdrv.so:vendor/lib/libvcodecdrv.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libvp8dec_sa.ca7.so:vendor/lib/libvp8dec_sa.ca7.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libvp8enc_sa.ca7.so:vendor/lib/libvp8enc_sa.ca7.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libvp9dec_sa.ca7.so:vendor/lib/libvp9dec_sa.ca7.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libwvdrm_L3.so:vendor/lib/libwvdrm_L3.so \
-    vendor/zte/b760h/proprietary/vendor/lib/libwvm.so:vendor/lib/libwvm.so \
-    vendor/zte/b760h/proprietary/vendor/lib/mediadrm/libwvdrmengine.so:vendor/lib/mediadrm/libwvdrmengine.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libh264enc_sa.ca7.so:system/vendor/lib/libh264enc_sa.ca7.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libh264enc_sb.ca7.so:system/vendor/lib/libh264enc_sb.ca7.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libmp4enc_sa.ca7.so:system/vendor/lib/libmp4enc_sa.ca7.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libmp4enc_xa.ca7.so:system/vendor/lib/libmp4enc_xa.ca7.so \
+    vendor/zte/b760h/proprietary/vendor/lib/librrc.so:system/vendor/lib/librrc.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libvc1dec_sa.ca7.so:system/vendor/lib/libvc1dec_sa.ca7.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libvcodec_oal.so:system/vendor/lib/libvcodec_oal.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libvcodecdrv.so:system/vendor/lib/libvcodecdrv.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libvp8dec_sa.ca7.so:system/vendor/lib/libvp8dec_sa.ca7.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libvp8enc_sa.ca7.so:system/vendor/lib/libvp8enc_sa.ca7.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libvp9dec_sa.ca7.so:system/vendor/lib/libvp9dec_sa.ca7.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libwvdrm_L3.so:system/vendor/lib/libwvdrm_L3.so \
+    vendor/zte/b760h/proprietary/vendor/lib/libwvm.so:system/vendor/lib/libwvm.so \
+    vendor/zte/b760h/proprietary/vendor/lib/mediadrm/libwvdrmengine.so:system/vendor/lib/mediadrm/libwvdrmengine.so \
     vendor/zte/b760h/proprietary/xbin/mnld:system/xbin/mnld
