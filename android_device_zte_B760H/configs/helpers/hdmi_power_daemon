@@ -30,7 +30,9 @@ logcat -b system -s DisplayManagerService:I | while read -r line; do
             /system/bin/ioctl -d /dev/hdmitx 0x4004480c 1 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4801 1 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4803 1 >/dev/null 2>&1
+            sleep 1
             /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$res" >/dev/null 2>&1
+            echo 0 > /sys/class/graphics/fb0/blank 2>/dev/null
             echo 0 > /sys/class/leds/red/brightness 2>/dev/null
             echo 255 > /sys/class/leds/green/brightness 2>/dev/null
             ;;
