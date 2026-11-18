@@ -67,3 +67,8 @@ dalvik.vm.heapmaxfree=8m
 # Disable Setup Wizard
 ro.setupwizard.mode=DISABLED
 ro.setupwizard.wifi_required=false
+
+# Default Language & Timezone (GMT+7)
+ro.product.locale=id-ID
+persist.sys.locale=id-ID
+persist.sys.timezone=Asia/Jakarta

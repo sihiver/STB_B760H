@@ -1,0 +1,31 @@
+From: Dindin Suryadi <din2.suryadi@gmail.com>
+Date: Wed, 18 Nov 2026 12:48:00 +0700
+Subject: [PATCH 10/10] Disable ColorFade EGL animation on MT8127
+
+Mali-450 shim_eglMakeCurrent crashes inside system_server (SIGSEGV at
+0x14) when ColorFade prepares/detaches its GL context on screen off,
+causing a soft-reboot instead of turning off HDMI via hdmi_power_daemon.
+Returning false from ColorFade.prepare() skips the GL fade animation and
+lets DisplayPowerController transition cleanly to Display.STATE_OFF.
+
+---
+ services/core/java/com/android/server/display/ColorFade.java | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/services/core/java/com/android/server/display/ColorFade.java b/services/core/java/com/android/server/display/ColorFade.java
+index 0000000..1111111 100644
+--- a/services/core/java/com/android/server/display/ColorFade.java
++++ b/services/core/java/com/android/server/display/ColorFade.java
+@@ -137,6 +137,9 @@ final class ColorFade {
+      * @return True if the color fade is ready, false if it is uncontrollable.
+      */
+     public boolean prepare(Context context, int mode) {
++        // Skip EGL ColorFade on MT8127 Mali-450 to avoid system_server SIGSEGV on sleep.
++        return false;
++
+         if (DEBUG) {
+             Slog.d(TAG, "prepare: mode=" + mode);
+         }
+-- 
+2.53.0
+
