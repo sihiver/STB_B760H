@@ -12,10 +12,14 @@ This does what configs/helpers/bootimg.mk does:
 Usage: wrap_mtk_bootimg.py <boot|recovery> <in.img> <out.img> [header.bin]
 Idempotent: an image that already carries the ZTE header is copied as-is.
 """
+import gzip
 import hashlib
 import os
+import shutil
 import struct
+import subprocess
 import sys
+import tempfile
 
 MTK_MAGIC = b"\x88\x16\x88\x58"
 ZTE_HDR_LEN = 96
@@ -74,6 +78,25 @@ def has_mtk(blob):
     return blob[:4] == MTK_MAGIC
 
 
+def replace_ramdisk_init(ramdisk_gz, init_path):
+    """Replace /init in a gzipped cpio ramdisk with the proven MT8127 init."""
+    raw = gzip.decompress(ramdisk_gz)
+    with tempfile.TemporaryDirectory() as tmp:
+        subprocess.run(
+            ["cpio", "-idm", "--no-absolute-filenames"],
+            input=raw, cwd=tmp, check=True,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        dst_init = os.path.join(tmp, "init")
+        shutil.copy2(init_path, dst_init)
+        os.chmod(dst_init, 0o750)
+        cpio_proc = subprocess.run(
+            "find . | cpio -o -H newc --quiet",
+            shell=True, cwd=tmp, check=True, stdout=subprocess.PIPE,
+        )
+        return gzip.compress(cpio_proc.stdout, compresslevel=9)
+
+
 def main():
     if len(sys.argv) < 4:
         sys.exit(__doc__)
@@ -90,6 +113,12 @@ def main():
         return
 
     p = parse(img)
+    if kind == "boot" and not has_mtk(p["ramdisk"]):
+        init_mt8127 = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "init_mt8127")
+        if os.path.isfile(init_mt8127):
+            p["ramdisk"] = replace_ramdisk_init(p["ramdisk"], init_mt8127)
+            print("replaced ramdisk /init with init_mt8127")
     if not has_mtk(p["kernel"]):
         p["kernel"] = mtk_hdr(len(p["kernel"]), b"KERNEL") + p["kernel"]
     if not has_mtk(p["ramdisk"]):
