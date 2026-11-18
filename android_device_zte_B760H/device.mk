@@ -165,7 +165,6 @@ PRODUCT_PACKAGES += \
     Overscan \
     MqlTV \
     YouTubeTV \
-    GmsStub \
     FileManagerPlus
 
 PRODUCT_COPY_FILES += \

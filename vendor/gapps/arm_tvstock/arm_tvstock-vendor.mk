@@ -32,7 +32,6 @@ PRODUCT_PACKAGES += \
     NoTouchAuthDelegate \
     SecondScreenSetup \
     SecondScreenSetupAuthBridge \
-    YouTubeLeanback \
     talkback \
     AtvRemoteService \
     CanvasPackageInstaller \
