@@ -43,28 +43,64 @@ jobs:
           sudo rm -rf /usr/local/share/powershell
           sudo rm -rf /var/lib/docker
           sudo rm -rf /usr/share/swift /usr/local/.ghcup /usr/local/share/chromium /usr/local/lib/node_modules
+          sudo rm -rf /usr/share/miniconda /usr/local/julia* /usr/lib/mono /usr/local/aws-cli /usr/local/aws-sam-cli /usr/local/lib/heroku /opt/microsoft /opt/az /imagegeneration || true
           sudo apt-get autoremove -y || true
           sudo apt-get clean
           echo "Disk space after cleanup:"
           df -h
 
-      - name: Set up Swap Space (8 GB)
+      - name: Set up Swap Space (only on low-RAM runners)
         run: |
+          MEM_KB=$(awk '/MemTotal/ {print $2}' /proc/meminfo)
+          echo "MemTotal: ${MEM_KB} kB"
           sudo swapoff -a || true
           sudo rm -f /swapfile /mnt/swapfile
-          # Prefer the runner's temporary /mnt disk so the 8 GB swap does not eat the root disk needed by out/
-          SWAPFILE=/swapfile
-          MNT_FREE_KB=$(df --output=avail /mnt 2>/dev/null | tail -n 1 | tr -d ' ')
-          if [ -n "$MNT_FREE_KB" ] && [ "$MNT_FREE_KB" -gt 10485760 ]; then
-            SWAPFILE=/mnt/swapfile
+          if [ "$MEM_KB" -ge 14000000 ]; then
+            echo "Runner has >= 14 GB RAM: skipping swap to keep disk for out/"
+          else
+            SWAPFILE=/swapfile
+            MNT_FREE_KB=$(df --output=avail /mnt 2>/dev/null | tail -n 1 | tr -d ' ')
+            if [ -n "$MNT_FREE_KB" ] && [ "$MNT_FREE_KB" -gt 10485760 ]; then
+              SWAPFILE=/mnt/swapfile
+            fi
+            echo "Using swap file: $SWAPFILE"
+            sudo fallocate -l 8G $SWAPFILE || sudo dd if=/dev/zero of=$SWAPFILE bs=1M count=8192
+            sudo chmod 600 $SWAPFILE
+            sudo mkswap $SWAPFILE
+            sudo swapon $SWAPFILE
           fi
-          echo "Using swap file: $SWAPFILE"
-          sudo fallocate -l 8G $SWAPFILE || sudo dd if=/dev/zero of=$SWAPFILE bs=1M count=8192
-          sudo chmod 600 $SWAPFILE
-          sudo mkswap $SWAPFILE
-          sudo swapon $SWAPFILE
           free -h
           df -h / /mnt
+
+      - name: Maximize Build Space (merge / and /mnt into one LVM volume at ~/android)
+        run: |
+          # Full systemimage build ran out of disk ("No space left on device" at 83%).
+          # Combine the free space of / and /mnt (separate disks on the runner) into one ext4 volume.
+          mkdir -p "$HOME/android"
+          if ! sudo apt-get install -y lvm2 >/dev/null 2>&1 || ! command -v pvcreate >/dev/null; then
+            echo "lvm2 unavailable, falling back to plain ~/android on /"
+            exit 0
+          fi
+          ROOT_FREE_KB=$(df --output=avail -k / | tail -n 1 | tr -d ' ')
+          MNT_FREE_KB=$(df --output=avail -k /mnt | tail -n 1 | tr -d ' ')
+          ROOT_IMG_MB=$(( ROOT_FREE_KB / 1024 - 8192 ))   # keep 8 GB free on / for tmp/logs/Java/apt
+          MNT_IMG_MB=$(( MNT_FREE_KB / 1024 - 1024 ))     # keep 1 GB free on /mnt
+          echo "ROOT_IMG_MB=$ROOT_IMG_MB MNT_IMG_MB=$MNT_IMG_MB"
+          if [ "$ROOT_IMG_MB" -lt 4096 ] || [ "$MNT_IMG_MB" -lt 4096 ]; then
+            echo "Not enough free space to merge, falling back to plain ~/android"
+            exit 0
+          fi
+          sudo truncate -s ${ROOT_IMG_MB}M /pv-root.img
+          sudo truncate -s ${MNT_IMG_MB}M /mnt/pv-mnt.img
+          LOOP1=$(sudo losetup --find --show /pv-root.img)
+          LOOP2=$(sudo losetup --find --show /mnt/pv-mnt.img)
+          sudo pvcreate -ff -y $LOOP1 $LOOP2
+          sudo vgcreate buildvg $LOOP1 $LOOP2
+          sudo lvcreate -l 100%FREE -n buildlv buildvg
+          sudo mkfs.ext4 -m 0 -F /dev/buildvg/buildlv
+          sudo mount /dev/buildvg/buildlv "$HOME/android"
+          sudo chown -R "$(id -u):$(id -g)" "$HOME/android"
+          df -h / /mnt "$HOME/android"
 
       - name: Set up Java 8 (Zulu)
         uses: actions/setup-java@v4
@@ -131,6 +167,9 @@ jobs:
           repo init -u https://android.googlesource.com/platform/manifest -b android-7.1.2_r36 --depth=${{ inputs.sync_depth }}
           repo sync -c -j4 --no-tags --no-clone-bundle --force-sync
           
+          # Drop macOS-only prebuilts (host is linux-x86) to save disk
+          find prebuilts -maxdepth 5 -type d \( -name 'darwin-x86' -o -name 'darwin-x86_64' \) -prune -exec rm -rf {} + 2>/dev/null || true
+          
           # Delete .repo directory to immediately free 15-20 GB disk space
           echo "Disk space before removing .repo:"
           df -h
@@ -186,10 +225,15 @@ jobs:
           export ANDROID_JACK_VM_ARGS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx5120m"
           ./prebuilts/sdk/tools/jack-admin kill-server || true
           
+          # Log free disk every 10 minutes so future failures show the trend
+          ( while true; do sleep 600; echo "[disk-monitor] $(date +%T) $(df -h --output=avail / "$HOME/android" | tail -n +2 | tr '\n' ' ')" ; done ) &
+          MON_PID=$!
+          
           BUILD_TARGET="${{ inputs.target }}"
           echo "Executing build: make -j2 $BUILD_TARGET"
           make -j2 $BUILD_TARGET 2>&1 | tee build.log
           BUILD_STATUS=${PIPESTATUS[0]}
+          kill $MON_PID 2>/dev/null || true
           
           if [ $BUILD_STATUS -ne 0 ]; then
             echo "==================== BUILD FAILED (Exit Code: $BUILD_STATUS) ===================="
