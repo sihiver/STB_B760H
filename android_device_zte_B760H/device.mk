@@ -63,9 +63,7 @@ PRODUCT_COPY_FILES += \
     $(DEVICE_PATH)/configs/init/net_helper.rc:system/etc/init/net_helper.rc \
     $(DEVICE_PATH)/configs/helpers/hdmi_power_daemon:system/bin/hdmi_power_daemon \
     $(DEVICE_PATH)/configs/init/hdmi_power.rc:system/etc/init/hdmi_power.rc \
-    $(DEVICE_PATH)/configs/init/power_standby.rc:system/etc/init/power_standby.rc \
-    $(DEVICE_PATH)/configs/helpers/app_killer_daemon:system/bin/app_killer_daemon \
-    $(DEVICE_PATH)/configs/init/app_killer.rc:system/etc/init/app_killer.rc
+    $(DEVICE_PATH)/configs/init/power_standby.rc:system/etc/init/power_standby.rc
 
 # Keylayout
 PRODUCT_COPY_FILES += \
