@@ -55,9 +55,11 @@ if [ "$(cat /sys/class/switch/hdmi/state 2>/dev/null)" = "1" ]; then
 fi
 
 # Listen to DisplayManagerService state changes in system buffer
+SCREEN_WAS_OFF=0
 logcat -b system -s DisplayManagerService:I | while read -r line; do
     case "$line" in
         *"Display device changed state:"*", OFF"*)
+            SCREEN_WAS_OFF=1
             /system/bin/ioctl -d /dev/hdmitx 0x4801 0 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4803 0 >/dev/null 2>&1
             /system/bin/ioctl -d /dev/hdmitx 0x4004480c 0 >/dev/null 2>&1
@@ -66,15 +68,18 @@ logcat -b system -s DisplayManagerService:I | while read -r line; do
             echo on > /proc/ledlight/powerred/state 2>/dev/null
             ;;
         *"Display device changed state:"*", ON"*)
-            res=$(detect_hdmi_res)
-            /system/bin/ioctl -d /dev/hdmitx 0xc004480b 1 >/dev/null 2>&1
-            /system/bin/ioctl -d /dev/hdmitx 0x4004480c 1 >/dev/null 2>&1
-            /system/bin/ioctl -d /dev/hdmitx 0x4801 1 >/dev/null 2>&1
-            /system/bin/ioctl -d /dev/hdmitx 0x4803 1 >/dev/null 2>&1
-            sleep 1
-            /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$res" >/dev/null 2>&1
-            setprop vendor.hdmi.active_res "$res"
-            echo 0 > /sys/class/graphics/fb0/blank 2>/dev/null
+            if [ "$SCREEN_WAS_OFF" = "1" ]; then
+                SCREEN_WAS_OFF=0
+                res=$(detect_hdmi_res)
+                /system/bin/ioctl -d /dev/hdmitx 0xc004480b 1 >/dev/null 2>&1
+                /system/bin/ioctl -d /dev/hdmitx 0x4004480c 1 >/dev/null 2>&1
+                /system/bin/ioctl -d /dev/hdmitx 0x4801 1 >/dev/null 2>&1
+                /system/bin/ioctl -d /dev/hdmitx 0x4803 1 >/dev/null 2>&1
+                sleep 1
+                /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$res" >/dev/null 2>&1
+                setprop vendor.hdmi.active_res "$res"
+                echo 0 > /sys/class/graphics/fb0/blank 2>/dev/null
+            fi
             echo off > /proc/ledlight/powerred/state 2>/dev/null
             echo on > /proc/ledlight/powergreen/state 2>/dev/null
             ;;
