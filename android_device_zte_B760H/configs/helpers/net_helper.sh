@@ -52,6 +52,24 @@ fi
     done
 ) &
 
+# 4. Force-stop YouTubeTV when returning to Home to avoid MainWebModule resume SIGSEGV
+(
+    YT_ACTIVE=0
+    logcat -b events -T 1 -s am_focused_activity:I | while read -r line; do
+        case "$line" in
+            *"com.google.android.youtube.tv/"*)
+                YT_ACTIVE=1
+                ;;
+            *"com.mqltv/.MainActivity"*|*"com.google.android.leanbacklauncher"*)
+                if [ "$YT_ACTIVE" = "1" ]; then
+                    YT_ACTIVE=0
+                    am force-stop com.google.android.youtube.tv >/dev/null 2>&1
+                fi
+                ;;
+        esac
+    done
+) &
+
 # 3. Main network route, DNS & LAN LED watchdog loop
 LAST_NET_LED=""
 set_net_led() {
