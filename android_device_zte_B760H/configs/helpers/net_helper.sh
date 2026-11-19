@@ -46,7 +46,6 @@ fi
             settings put secure user_setup_complete 1 2>/dev/null
             pm disable com.google.android.tungsten.setupwraith 2>/dev/null
             pm disable com.android.provision 2>/dev/null
-            pm disable com.android.statementservice 2>/dev/null
             break
         fi
         sleep 1
