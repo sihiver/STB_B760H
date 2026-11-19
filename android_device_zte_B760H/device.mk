@@ -140,8 +140,10 @@ PRODUCT_PACKAGES += \
     libdpframework
 
 # Settings
+ifneq (,$(filter lineage_b760h,$(PRODUCT_NAME) $(TARGET_PRODUCT)))
 PRODUCT_PACKAGES += \
     TvSettingsMTK
+endif
 
 # Time
 PRODUCT_PACKAGES += \
