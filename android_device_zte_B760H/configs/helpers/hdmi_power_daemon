@@ -12,10 +12,24 @@ if [ -b /dev/block/mmcblk0p8 ]; then
     fi
 fi
 
-# Auto-detect TV EDID preferred resolution (1080p60=11, 1080p50=12, 720p60=2, 720p50=3)
+# Map (ntsc_mask, pal_mask) to hdmitx resolution code: 1080p60=11, 1080p50=12, 720p60=2, 720p50=3
+pick_hdmi_res() {
+    local ntsc=$1 pal=$2
+    if [ $(( ntsc & 8 )) -ne 0 ]; then
+        echo 11
+    elif [ $(( pal & 2048 )) -ne 0 ]; then
+        echo 12
+    elif [ $(( ntsc & 2 )) -ne 0 ]; then
+        echo 2
+    elif [ $(( pal & 512 )) -ne 0 ]; then
+        echo 3
+    fi
+}
+
+# Auto-detect TV EDID preferred (native) resolution, falling back to highest supported
 # Respects user's manual selection in persist.sys.hdmi.res if set.
 detect_hdmi_res() {
-    local user_res edid_line b0 b1 b2 b3 b4 b5 b6 b7 ntsc pal boot_res
+    local user_res edid_line ntsc pal nat_ntsc nat_pal picked boot_res
     user_res=$(getprop persist.sys.hdmi.res)
     if [ -n "$user_res" ]; then
         echo "$user_res"; return
@@ -23,19 +37,20 @@ detect_hdmi_res() {
     edid_line=$(/system/bin/ioctl -l 112 /dev/hdmitx 0xc070483d 2>/dev/null | grep '^return buf:')
     if [ -n "$edid_line" ]; then
         set -- ${edid_line#return buf: }
-        b0=$1; b1=$2; b2=$3; b3=$4
-        b4=$5; b5=$6; b6=$7; b7=$8
-        if [ -n "$b7" ]; then
-            ntsc=$(( 0x$b0 | (0x$b1 << 8) | (0x$b2 << 16) | (0x$b3 << 24) ))
-            pal=$(( 0x$b4 | (0x$b5 << 8) | (0x$b6 << 16) | (0x$b7 << 24) ))
-            if [ $(( ntsc & 8 )) -ne 0 ]; then
-                echo 11; return
-            elif [ $(( pal & 2048 )) -ne 0 ]; then
-                echo 12; return
-            elif [ $(( ntsc & 2 )) -ne 0 ]; then
-                echo 2; return
-            elif [ $(( pal & 512 )) -ne 0 ]; then
-                echo 3; return
+        if [ -n "${16}" ]; then
+            nat_ntsc=$(( 0x$9 | (0x${10} << 8) | (0x${11} << 16) | (0x${12} << 24) ))
+            nat_pal=$(( 0x${13} | (0x${14} << 8) | (0x${15} << 16) | (0x${16} << 24) ))
+            picked=$(pick_hdmi_res "$nat_ntsc" "$nat_pal")
+            if [ -n "$picked" ]; then
+                echo "$picked"; return
+            fi
+        fi
+        if [ -n "$8" ]; then
+            ntsc=$(( 0x$1 | (0x$2 << 8) | (0x$3 << 16) | (0x$4 << 24) ))
+            pal=$(( 0x$5 | (0x$6 << 8) | (0x$7 << 16) | (0x$8 << 24) ))
+            picked=$(pick_hdmi_res "$ntsc" "$pal")
+            if [ -n "$picked" ]; then
+                echo "$picked"; return
             fi
         fi
     fi
