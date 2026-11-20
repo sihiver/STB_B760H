@@ -1,3 +1,18 @@
+diff --git a/Settings/res/drawable/ic_display.xml b/Settings/res/drawable/ic_display.xml
+new file mode 100644
+index 0000000..66bbd7b
+--- /dev/null
++++ b/Settings/res/drawable/ic_display.xml
+@@ -0,0 +1,9 @@
++<vector xmlns:android="http://schemas.android.com/apk/res/android"
++        android:width="32dp"
++        android:height="32dp"
++        android:viewportWidth="24.0"
++        android:viewportHeight="24.0">
++    <path
++        android:fillColor="#FFFFFFFF"
++        android:pathData="M21,3L3,3c-1.1,0 -2,0.9 -2,2v12c0,1.1 0.9,2 2,2h5v2h8v-2h5c1.1,0 1.99,-0.9 1.99,-2L23,5c0,-1.1 -0.9,-2 -2,-2zM21,17L3,17L3,5h18v12z"/>
++</vector>
 diff --git a/Settings/src/com/mediatek/hdmi/HDMINative.java b/Settings/src/com/mediatek/hdmi/HDMINative.java
 new file mode 100644
 index 0000000..bf9a9d6
@@ -113,6 +128,19 @@ index 9ecfe86..50d7a67 100644
      <!-- Title for preference which controls surround sound passthrough function [CHAR LIMIT=50] -->
      <string name="device_surround_sound">Surround sound</string>
      <!-- Preference and title which changes system sounds settings. [CHAR LIMIT=50] -->
+diff --git a/Settings/res/xml/main_prefs.xml b/Settings/res/xml/main_prefs.xml
+index d8411e1..bed076e 100644
+--- a/Settings/res/xml/main_prefs.xml
++++ b/Settings/res/xml/main_prefs.xml
+@@ -37,7 +37,7 @@
+             <intent android:action="com.google.android.settings.CAST_RECEIVER_SETTINGS" />
+         </Preference>
+         <Preference
+-            android:icon="@drawable/ic_volume_up"
++            android:icon="@drawable/ic_display"
+             android:key="sound_effects"
+             android:title="@string/device_sound"
+             android:fragment="com.android.tv.settings.device.sound.SoundFragment" />
 diff --git a/Settings/res/xml/sound.xml b/Settings/res/xml/sound.xml
 index 273a642..dd7938a 100644
 --- a/Settings/res/xml/sound.xml
