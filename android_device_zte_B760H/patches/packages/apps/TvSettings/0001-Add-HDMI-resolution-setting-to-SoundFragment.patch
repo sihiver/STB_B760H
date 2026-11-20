@@ -52,6 +52,21 @@ index 0000000..bf9a9d6
 +        return getEdidNative();
 +    }
 +}
+diff --git a/Settings/res/values-in/strings.xml b/Settings/res/values-in/strings.xml
+index d284057..ae8ffb2 100644
+--- a/Settings/res/values-in/strings.xml
++++ b/Settings/res/values-in/strings.xml
+@@ -48,7 +48,9 @@
+     <string name="wifi_setting_enable_wifi" msgid="9214100840401870408">"Wi-Fi"</string>
+     <string name="device_daydream" msgid="3354366974209179614">"Screen saver"</string>
+     <string name="device_display" msgid="101455384386372747">"Layar"</string>
+-    <string name="device_sound" msgid="9214182566287657481">"Suara"</string>
++    <string name="device_sound" msgid="9214182566287657481">"Tampilan &amp; suara"</string>
++    <string name="device_display_resolution">"Resolusi HDMI"</string>
++    <string name="display_resolution_failed">"Gagal mengubah resolusi HDMI"</string>
+     <string name="device_surround_sound" msgid="6272196310566546860">"Suara surround"</string>
+     <string name="device_sound_effects" msgid="7793281745920228622">"Suara sistem"</string>
+     <string name="device_apps" msgid="9180435229638772838">"Aplikasi"</string>
 diff --git a/Settings/res/values/arrays.xml b/Settings/res/values/arrays.xml
 index df6a6ad..f5167bf 100644
 --- a/Settings/res/values/arrays.xml
