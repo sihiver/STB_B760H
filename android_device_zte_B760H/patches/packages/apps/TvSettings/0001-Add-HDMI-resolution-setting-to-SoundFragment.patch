@@ -26,10 +26,10 @@ index df6a6ad..f5167bf 100644
 +    </string-array>
  </resources>
 diff --git a/Settings/res/values/strings.xml b/Settings/res/values/strings.xml
-index 9ecfe86..50d7a67 100644
+index 9ecfe86..c684017 100644
 --- a/Settings/res/values/strings.xml
 +++ b/Settings/res/values/strings.xml
-@@ -90,8 +90,12 @@
+@@ -90,8 +90,10 @@
      <string name="device_daydream">Screen saver</string>
      <!-- Preference which changes display settings. [CHAR LIMIT=50] -->
      <string name="device_display">Display</string>
@@ -39,8 +39,6 @@ index 9ecfe86..50d7a67 100644
 +    <string name="device_sound">Display &amp; sound</string>
 +    <!-- Title for preference controlling HDMI display resolution [CHAR LIMIT=50] -->
 +    <string name="device_display_resolution">HDMI resolution</string>
-+    <!-- Toast message when changing HDMI resolution fails [CHAR LIMIT=80] -->
-+    <string name="display_resolution_failed">Failed to change HDMI resolution</string>
      <!-- Title for preference which controls surround sound passthrough function [CHAR LIMIT=50] -->
      <string name="device_surround_sound">Surround sound</string>
      <!-- Preference and title which changes system sounds settings. [CHAR LIMIT=50] -->
@@ -64,7 +62,7 @@ index 273a642..dd7938a 100644
          android:key="sound_effects"
          android:persistent="false"
 diff --git a/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java b/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java
-index 82ad4f5..2240435 100644
+index 82ad4f5..c34e186 100644
 --- a/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java
 +++ b/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java
 @@ -20,6 +20,7 @@ import android.content.ContentResolver;
@@ -75,26 +73,17 @@ index 82ad4f5..2240435 100644
  import android.provider.Settings;
  import android.support.v14.preference.SwitchPreference;
  import android.support.v17.preference.LeanbackPreferenceFragment;
-@@ -28,12 +29,18 @@ import android.support.v7.preference.Preference;
- import android.support.v7.preference.PreferenceScreen;
- import android.support.v7.preference.TwoStatePreference;
- import android.text.TextUtils;
-+import android.util.Log;
-+import android.widget.Toast;
- 
- import com.android.tv.settings.R;
- 
+@@ -34,6 +35,9 @@ import com.android.tv.settings.R;
  public class SoundFragment extends LeanbackPreferenceFragment implements
          Preference.OnPreferenceChangeListener {
  
 +    private static final String KEY_DISPLAY_RESOLUTION = "display_resolution";
 +    private static final String PROP_HDMI_PERSIST_RES = "persist.sys.hdmi.res";
-+    private static final String PROP_HDMI_ACTIVE_RES = "vendor.hdmi.active_res";
 +
      private static final String KEY_SOUND_EFFECTS = "sound_effects";
      private static final String KEY_SURROUND_PASSTHROUGH = "surround_passthrough";
  
-@@ -57,6 +64,13 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
+@@ -57,6 +61,13 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
      public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
          setPreferencesFromResource(R.xml.sound, null);
  
@@ -108,33 +97,15 @@ index 82ad4f5..2240435 100644
          final TwoStatePreference soundPref = (TwoStatePreference) findPreference(KEY_SOUND_EFFECTS);
          soundPref.setChecked(getSoundEffectsEnabled());
  
-@@ -93,6 +107,29 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
+@@ -93,6 +104,11 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
                      throw new IllegalArgumentException("Unknown surround sound pref value");
              }
              return true;
 +        } else if (TextUtils.equals(preference.getKey(), KEY_DISPLAY_RESOLUTION)) {
 +            final String selection = (String) newValue;
-+            if (TextUtils.isEmpty(selection)) {
-+                SystemProperties.set(PROP_HDMI_PERSIST_RES, "");
-+                SystemProperties.set("ctl.restart", "hdmi_power");
-+                return true;
-+            }
-+            try {
-+                final int resValue = Integer.parseInt(selection);
-+                final Process proc = new ProcessBuilder(
-+                        "/system/bin/ioctl", "-d", "/dev/hdmitx", "0xc0044806",
-+                        Integer.toString(resValue)).start();
-+                if (proc.waitFor() == 0) {
-+                    SystemProperties.set(PROP_HDMI_PERSIST_RES, selection);
-+                    SystemProperties.set(PROP_HDMI_ACTIVE_RES, selection);
-+                    return true;
-+                }
-+            } catch (Exception e) {
-+                Log.e(KEY_DISPLAY_RESOLUTION, "ioctl 0xc0044806 failed: " + selection, e);
-+            }
-+            Toast.makeText(getContext(), R.string.display_resolution_failed,
-+                    Toast.LENGTH_SHORT).show();
-+            return false;
++            SystemProperties.set(PROP_HDMI_PERSIST_RES, selection != null ? selection : "");
++            SystemProperties.set("ctl.restart", "hdmi_power");
++            return true;
          }
          return true;
      }

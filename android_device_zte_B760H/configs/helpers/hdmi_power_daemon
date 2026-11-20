@@ -58,16 +58,32 @@ detect_hdmi_res() {
     echo "${boot_res:-11}"
 }
 
-# Apply EDID resolution at startup if different from bootloader hdmi_res
-if [ "$(cat /sys/class/switch/hdmi/state 2>/dev/null)" = "1" ]; then
+power_on_hdmi() {
+    /system/bin/ioctl -d /dev/hdmitx 0xc004480b 1 >/dev/null 2>&1
+    /system/bin/ioctl -d /dev/hdmitx 0x4004480c 1 >/dev/null 2>&1
+    /system/bin/ioctl -d /dev/hdmitx 0x4801 1 >/dev/null 2>&1
+    /system/bin/ioctl -d /dev/hdmitx 0x4803 1 >/dev/null 2>&1
+}
+
+# Power on hdmitx and apply EDID / persisted resolution once boot finishes
+(
+    i=0
+    while [ "$i" -lt 30 ]; do
+        [ "$(getprop sys.boot_completed)" = "1" ] && break
+        sleep 1
+        i=$((i + 1))
+    done
+    power_on_hdmi
+    sleep 1
     init_res=$(detect_hdmi_res)
     boot_res=$(getprop vendor.hdmi.boot_res)
     [ -z "$boot_res" ] && boot_res=11
-    if [ "$init_res" != "$boot_res" ]; then
+    if [ "$init_res" != "$boot_res" ] || [ -n "$(getprop persist.sys.hdmi.res)" ]; then
         /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$init_res" >/dev/null 2>&1
     fi
     setprop vendor.hdmi.active_res "$init_res"
-fi
+    echo 0 > /sys/class/graphics/fb0/blank 2>/dev/null
+) &
 
 # Listen to DisplayManagerService state changes in system buffer
 SCREEN_WAS_OFF=0
@@ -86,10 +102,7 @@ logcat -b system -s DisplayManagerService:I | while read -r line; do
             if [ "$SCREEN_WAS_OFF" = "1" ]; then
                 SCREEN_WAS_OFF=0
                 res=$(detect_hdmi_res)
-                /system/bin/ioctl -d /dev/hdmitx 0xc004480b 1 >/dev/null 2>&1
-                /system/bin/ioctl -d /dev/hdmitx 0x4004480c 1 >/dev/null 2>&1
-                /system/bin/ioctl -d /dev/hdmitx 0x4801 1 >/dev/null 2>&1
-                /system/bin/ioctl -d /dev/hdmitx 0x4803 1 >/dev/null 2>&1
+                power_on_hdmi
                 sleep 1
                 /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$res" >/dev/null 2>&1
                 setprop vendor.hdmi.active_res "$res"
