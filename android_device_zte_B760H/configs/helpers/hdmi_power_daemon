@@ -65,7 +65,15 @@ power_on_hdmi() {
     /system/bin/ioctl -d /dev/hdmitx 0x4803 1 >/dev/null 2>&1
 }
 
-# Power on hdmitx and apply EDID / persisted resolution once boot finishes
+get_boot_hdmi_res() {
+    local r
+    r=$(tr ' ' '\n' < /proc/cmdline 2>/dev/null | grep '^hdmi_res=' | head -n 1)
+    r=${r#hdmi_res=}
+    [ -z "$r" ] && r=$(getprop vendor.hdmi.boot_res)
+    echo "${r:-11}"
+}
+
+# Power on hdmitx and match lk's boot hdmi_res (changing 720p<->1080p mid-boot causes HWC zoom/shrink)
 (
     i=0
     while [ "$i" -lt 30 ]; do
@@ -75,13 +83,9 @@ power_on_hdmi() {
     done
     power_on_hdmi
     sleep 1
-    init_res=$(detect_hdmi_res)
-    boot_res=$(getprop vendor.hdmi.boot_res)
-    [ -z "$boot_res" ] && boot_res=11
-    if [ "$init_res" != "$boot_res" ] || [ -n "$(getprop persist.sys.hdmi.res)" ]; then
-        /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$init_res" >/dev/null 2>&1
-    fi
-    setprop vendor.hdmi.active_res "$init_res"
+    boot_res=$(get_boot_hdmi_res)
+    /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$boot_res" >/dev/null 2>&1
+    setprop vendor.hdmi.active_res "$boot_res"
     echo 0 > /sys/class/graphics/fb0/blank 2>/dev/null
 ) &
 
@@ -101,7 +105,7 @@ logcat -b system -s DisplayManagerService:I | while read -r line; do
         *"Display device changed state:"*", ON"*)
             if [ "$SCREEN_WAS_OFF" = "1" ]; then
                 SCREEN_WAS_OFF=0
-                res=$(detect_hdmi_res)
+                res=$(get_boot_hdmi_res)
                 power_on_hdmi
                 sleep 1
                 /system/bin/ioctl -d /dev/hdmitx 0xc0044806 "$res" >/dev/null 2>&1
