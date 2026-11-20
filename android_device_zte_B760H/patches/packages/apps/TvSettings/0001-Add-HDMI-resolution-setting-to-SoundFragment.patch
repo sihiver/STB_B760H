@@ -15,7 +15,7 @@ index 0000000..66bbd7b
 +</vector>
 diff --git a/Settings/src/com/mediatek/hdmi/HDMINative.java b/Settings/src/com/mediatek/hdmi/HDMINative.java
 new file mode 100644
-index 0000000..bf9a9d6
+index 0000000..27b2f4d
 --- /dev/null
 +++ b/Settings/src/com/mediatek/hdmi/HDMINative.java
 @@ -0,0 +1,48 @@
@@ -173,6 +173,20 @@ index 273a642..dd7938a 100644
      <SwitchPreference
          android:key="sound_effects"
          android:persistent="false"
+diff --git a/Settings/src/com/android/tv/settings/MainFragment.java b/Settings/src/com/android/tv/settings/MainFragment.java
+index 57b90a3..8277881 100644
+--- a/Settings/src/com/android/tv/settings/MainFragment.java
++++ b/Settings/src/com/android/tv/settings/MainFragment.java
+@@ -382,8 +382,7 @@ public class MainFragment extends LeanbackPreferenceFragment {
+             return;
+         }
+ 
+-        mSoundsPref.setIcon(SoundFragment.getSoundEffectsEnabled(getContext().getContentResolver())
+-                ? R.drawable.ic_volume_up : R.drawable.ic_volume_off);
++        mSoundsPref.setIcon(R.drawable.ic_display);
+     }
+ 
+     private void updateWifi() {
 diff --git a/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java b/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java
 index 82ad4f5..3acb98c 100644
 --- a/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java
