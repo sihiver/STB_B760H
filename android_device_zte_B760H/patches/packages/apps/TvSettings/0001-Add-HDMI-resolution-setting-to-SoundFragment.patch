@@ -81,25 +81,26 @@ index fbade5f..894d5cb 100644
                  <category android:name="android.intent.category.DEFAULT" />
                  <category android:name="android.intent.category.VOICE_LAUNCH" />
 diff --git a/Settings/res/values-in/strings.xml b/Settings/res/values-in/strings.xml
-index d284057..ae8ffb2 100644
+index d284057..b455479 100644
 --- a/Settings/res/values-in/strings.xml
 +++ b/Settings/res/values-in/strings.xml
-@@ -48,7 +48,9 @@
+@@ -48,7 +48,10 @@
      <string name="wifi_setting_enable_wifi" msgid="9214100840401870408">"Wi-Fi"</string>
      <string name="device_daydream" msgid="3354366974209179614">"Screen saver"</string>
      <string name="device_display" msgid="101455384386372747">"Layar"</string>
 -    <string name="device_sound" msgid="9214182566287657481">"Suara"</string>
 +    <string name="device_sound" msgid="9214182566287657481">"Tampilan &amp; suara"</string>
 +    <string name="device_display_resolution">"Resolusi HDMI"</string>
++    <string name="device_calibration">"Kalibrasi"</string>
 +    <string name="display_resolution_failed">"Gagal mengubah resolusi HDMI"</string>
      <string name="device_surround_sound" msgid="6272196310566546860">"Suara surround"</string>
      <string name="device_sound_effects" msgid="7793281745920228622">"Suara sistem"</string>
      <string name="device_apps" msgid="9180435229638772838">"Aplikasi"</string>
 diff --git a/Settings/res/values/arrays.xml b/Settings/res/values/arrays.xml
-index df6a6ad..f5167bf 100644
+index df6a6ad..5713b64 100644
 --- a/Settings/res/values/arrays.xml
 +++ b/Settings/res/values/arrays.xml
-@@ -238,4 +238,22 @@
+@@ -238,4 +238,30 @@
          <item>always</item>
          <item>never</item>
      </string-array>
@@ -107,26 +108,34 @@ index df6a6ad..f5167bf 100644
 +    <!-- List entries for HDMI display resolution setting [CHAR LIMIT=50] -->
 +    <string-array name="display_resolution_entries" translatable="false">
 +        <item>Auto (EDID)</item>
-+        <item>1080p 60Hz</item>
-+        <item>1080p 50Hz</item>
++        <item>NTSC</item>
++        <item>PAL</item>
 +        <item>720p 60Hz</item>
 +        <item>720p 50Hz</item>
++        <item>1080i 60Hz</item>
++        <item>1080i 50Hz</item>
++        <item>1080p 60Hz</item>
++        <item>1080p 50Hz</item>
 +    </string-array>
 +
 +    <!-- Entry values for HDMI display resolution setting -->
 +    <string-array name="display_resolution_entry_values" translatable="false">
 +        <item></item>
-+        <item>11</item>
-+        <item>12</item>
++        <item>0</item>
++        <item>1</item>
 +        <item>2</item>
 +        <item>3</item>
++        <item>4</item>
++        <item>5</item>
++        <item>11</item>
++        <item>12</item>
 +    </string-array>
  </resources>
 diff --git a/Settings/res/values/strings.xml b/Settings/res/values/strings.xml
-index 9ecfe86..50d7a67 100644
+index 9ecfe86..9a83e90 100644
 --- a/Settings/res/values/strings.xml
 +++ b/Settings/res/values/strings.xml
-@@ -90,8 +90,12 @@
+@@ -90,8 +90,14 @@
      <string name="device_daydream">Screen saver</string>
      <!-- Preference which changes display settings. [CHAR LIMIT=50] -->
      <string name="device_display">Display</string>
@@ -136,6 +145,8 @@ index 9ecfe86..50d7a67 100644
 +    <string name="device_sound">Display &amp; sound</string>
 +    <!-- Title for preference controlling HDMI display resolution [CHAR LIMIT=50] -->
 +    <string name="device_display_resolution">HDMI resolution</string>
++    <!-- Title for preference launching overscan calibration [CHAR LIMIT=50] -->
++    <string name="device_calibration">Calibration</string>
 +    <!-- Toast message when changing HDMI resolution fails [CHAR LIMIT=80] -->
 +    <string name="display_resolution_failed">Failed to change HDMI resolution</string>
      <!-- Title for preference which controls surround sound passthrough function [CHAR LIMIT=50] -->
@@ -155,10 +166,10 @@ index d8411e1..bed076e 100644
              android:title="@string/device_sound"
              android:fragment="com.android.tv.settings.device.sound.SoundFragment" />
 diff --git a/Settings/res/xml/sound.xml b/Settings/res/xml/sound.xml
-index 273a642..dd7938a 100644
+index 273a642..b40cd98 100644
 --- a/Settings/res/xml/sound.xml
 +++ b/Settings/res/xml/sound.xml
-@@ -18,6 +18,14 @@
+@@ -18,6 +18,18 @@
  <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
      android:title="@string/device_sound">
  
@@ -169,6 +180,10 @@ index 273a642..dd7938a 100644
 +        android:entryValues="@array/display_resolution_entry_values"
 +        android:title="@string/device_display_resolution"
 +        android:summary="%s" />
++
++    <Preference
++        android:key="display_overscan"
++        android:title="@string/device_calibration" />
 +
      <SwitchPreference
          android:key="sound_effects"
@@ -188,18 +203,26 @@ index 57b90a3..8277881 100644
  
      private void updateWifi() {
 diff --git a/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java b/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java
-index 82ad4f5..3acb98c 100644
+index 82ad4f5..352fe3a 100644
 --- a/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java
 +++ b/Settings/src/com/android/tv/settings/device/sound/SoundFragment.java
-@@ -20,6 +20,7 @@ import android.content.ContentResolver;
+@@ -16,10 +16,15 @@
+ 
+ package com.android.tv.settings.device.sound;
+ 
++import android.content.ActivityNotFoundException;
++import android.content.ComponentName;
+ import android.content.ContentResolver;
  import android.content.Context;
++import android.content.Intent;
++import android.content.pm.PackageManager;
  import android.media.AudioManager;
  import android.os.Bundle;
 +import android.os.SystemProperties;
  import android.provider.Settings;
  import android.support.v14.preference.SwitchPreference;
  import android.support.v17.preference.LeanbackPreferenceFragment;
-@@ -28,12 +29,19 @@ import android.support.v7.preference.Preference;
+@@ -28,12 +33,23 @@ import android.support.v7.preference.Preference;
  import android.support.v7.preference.PreferenceScreen;
  import android.support.v7.preference.TwoStatePreference;
  import android.text.TextUtils;
@@ -213,13 +236,17 @@ index 82ad4f5..3acb98c 100644
          Preference.OnPreferenceChangeListener {
  
 +    private static final String KEY_DISPLAY_RESOLUTION = "display_resolution";
++    private static final String KEY_DISPLAY_OVERSCAN = "display_overscan";
 +    private static final String PROP_HDMI_PERSIST_RES = "persist.sys.hdmi.res";
 +    private static final String PROP_HDMI_ACTIVE_RES = "vendor.hdmi.active_res";
++    private static final String OVERSCAN_APP_PACKAGE = "com.google.android.tungsten.overscan";
++    private static final ComponentName OVERSCAN_ACTIVITY = new ComponentName(
++            OVERSCAN_APP_PACKAGE, OVERSCAN_APP_PACKAGE + ".CalibratorActivity");
 +
      private static final String KEY_SOUND_EFFECTS = "sound_effects";
      private static final String KEY_SURROUND_PASSTHROUGH = "surround_passthrough";
  
-@@ -42,6 +50,7 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
+@@ -42,6 +58,7 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
      private static final String VAL_SURROUND_SOUND_NEVER = "never";
  
      private AudioManager mAudioManager;
@@ -227,7 +254,7 @@ index 82ad4f5..3acb98c 100644
  
      public static SoundFragment newInstance() {
          return new SoundFragment();
-@@ -50,6 +59,7 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
+@@ -50,6 +67,7 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
      @Override
      public void onCreate(Bundle savedInstanceState) {
          mAudioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
@@ -235,7 +262,7 @@ index 82ad4f5..3acb98c 100644
          super.onCreate(savedInstanceState);
      }
  
-@@ -57,6 +67,13 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
+@@ -57,6 +75,18 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
      public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
          setPreferencesFromResource(R.xml.sound, null);
  
@@ -246,10 +273,25 @@ index 82ad4f5..3acb98c 100644
 +            resolutionPref.setOnPreferenceChangeListener(this);
 +        }
 +
++        final Preference overscanPref = findPreference(KEY_DISPLAY_OVERSCAN);
++        if (overscanPref != null && !isPackageInstalled(OVERSCAN_APP_PACKAGE)) {
++            overscanPref.setVisible(false);
++        }
++
          final TwoStatePreference soundPref = (TwoStatePreference) findPreference(KEY_SOUND_EFFECTS);
          soundPref.setChecked(getSoundEffectsEnabled());
  
-@@ -93,10 +110,51 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
+@@ -71,6 +101,9 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
+         if (TextUtils.equals(preference.getKey(), KEY_SOUND_EFFECTS)) {
+             final TwoStatePreference soundPref = (TwoStatePreference) preference;
+             setSoundEffectsEnabled(soundPref.isChecked());
++        } else if (TextUtils.equals(preference.getKey(), KEY_DISPLAY_OVERSCAN)) {
++            launchOverscan();
++            return true;
+         }
+         return super.onPreferenceTreeClick(preference);
+     }
+@@ -93,10 +126,71 @@ public class SoundFragment extends LeanbackPreferenceFragment implements
                      throw new IllegalArgumentException("Unknown surround sound pref value");
              }
              return true;
@@ -286,6 +328,26 @@ index 82ad4f5..3acb98c 100644
          return true;
      }
  
++    private void launchOverscan() {
++        Intent intent = new Intent();
++        intent.setComponent(OVERSCAN_ACTIVITY);
++        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
++        try {
++            startActivity(intent);
++        } catch (ActivityNotFoundException e) {
++            Log.e(KEY_DISPLAY_OVERSCAN, "Overscan activity not found", e);
++        }
++    }
++
++    private boolean isPackageInstalled(String packageName) {
++        try {
++            getContext().getPackageManager().getPackageInfo(packageName, 0);
++            return true;
++        } catch (PackageManager.NameNotFoundException e) {
++            return false;
++        }
++    }
++
 +    private static int pickAutoRes(int[] edid) {
 +        if (edid != null && edid.length >= 2) {
 +            int ntsc = edid[0];
