@@ -37,7 +37,7 @@ index 0000000..bf9a9d6
 +    public native boolean setDeepColorNative(int colorSpace, int deepColor);
 +    public native boolean setHdcpKeyNative(byte[] key);
 +    public native boolean setHdmiDrmKeyNative();
-+    public native boolean setCecAddrNative(byte laNum, byte[] la, char pa, char svc);
++    public native boolean setCecAddrNative(byte laNum, byte[] la, int pa, char svc);
 +    public native boolean setCecCmdNative(byte initAddr, byte destAddr, short opcode, byte[] operand, int size, byte enqueueOk);
 +    public native int[] getEdidNative();
 +    public native int[] getCecAddrNative();
